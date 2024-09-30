@@ -119,11 +119,17 @@ export function Navbar() {
   );
 }
 
+// Componente que renderiza una lista de categorías de productos
 export function CategoryList() {
   return (
+    // Crea una lista de navegación con el componente 
     <List component="nav" aria-label="product categories">
+      {/* Itera sobre un array de categorías predefinidas */}
       {["GPUs", "CPUs", "Motherboards", "RAM", "Storage"].map((categoria) => (
+        // Crea un elemento de lista para cada categoría
+        // La prop 'key' es necesaria para React cuando se renderizan listas
         <ListItem button key={categoria}>
+          {/* Renderiza el texto de la categoría */}
           <ListItemText primary={categoria} />
         </ListItem>
       ))}

@@ -5,33 +5,40 @@ import { Box, Typography, CircularProgress } from '@mui/material';
 import { Header, Navbar, ProductGrid, Footer } from '../Componentes';
 
 export default function Category() {
+  // Obtiene el parámetro 'categoria' de la URL
   const { categoria } = useParams();
+  
+  // Estado para almacenar todos los productos
   const [allProducts, setAllProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  
+  // Estado para manejar errores
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Función para obtener los productos del servidor
     const fetchProducts = async () => {
       try {
-        setLoading(true);
+        // Realiza una petición GET a la API
         const response = await axios.get('http://localhost:3000/api/productos');
+        // Actualiza el estado con los productos recibidos
         setAllProducts(response.data);
       } catch (err) {
+        // En caso de error, lo muestra en la consola
         console.error('Error completo:', err);
+        // Actualiza el estado de error con un mensaje descriptivo
         setError(`Error al cargar los productos: ${err.response?.data?.error || err.message}`);
-      } finally {
-        setLoading(false);
-      }
+      } 
     };
-
+    // Ejecuta la función para obtener los productos
     fetchProducts();
-  }, []);
+  }, []); // El array vacío asegura que este efecto se ejecute solo una vez al montar el componente
 
+  // Filtra los productos por la categoría actual
   const filteredProducts = allProducts.filter(
-    product => product.categoria.toLowerCase() === categoria.toLowerCase()
+    product => product.categoria === categoria
   );
 
-  if (loading) return <CircularProgress />;
+  // Si hay un error, muestra un mensaje de error
   if (error) return <Typography color="error">{error}</Typography>;
 
   return (
@@ -40,8 +47,10 @@ export default function Category() {
       <Navbar />
       <Box sx={{ padding: 3 }}>
         {filteredProducts.length > 0 ? (
+          // Si hay productos en la categoría, muestra el grid de productos
           <ProductGrid categoria={categoria} products={filteredProducts} />
         ) : (
+          // Si no hay productos, muestra un mensaje
           <Typography>No se encontraron productos en esta categoría.</Typography>
         )}
       </Box>
