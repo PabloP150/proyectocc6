@@ -14,7 +14,7 @@ export default function Category() {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:5000/api/productos');
+        const response = await axios.get('http://localhost:3000/api/productos');
         setAllProducts(response.data);
       } catch (err) {
         console.error('Error completo:', err);

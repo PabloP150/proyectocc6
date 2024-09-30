@@ -55,7 +55,7 @@ export default function Producto() {
       <Box sx={{ width: '100%', height: '70vh'}}>
         <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
           <Grid item xs={6} sx={{ flexGrow: 1, textAlign: 'center'}}>
-            <img src={`http://localhost:5000${producto.imagen}`} alt={producto.nombre} style={{ marginLeft: "5vw", height: '35vh', width: '40vw', objectFit: 'contain' }} />
+            <img src={`http://localhost:3000${producto.imagen}`} alt={producto.nombre} style={{ marginLeft: "5vw", height: '35vh', width: '40vw', objectFit: 'contain' }} />
           </Grid>
           <Grid item xs={6}>
             <Box sx={{ width: 300, height: 250, padding: 2 }}>

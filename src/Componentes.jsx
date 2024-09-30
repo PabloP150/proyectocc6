@@ -4,22 +4,15 @@ import {
   IconButton,
   Toolbar,
   Typography,
-  Button,
   Container,
   List,
   ListItem,
   ListItemText,
   Box,
   Grid,
-  Card,
-  CardContent,
-  CardMedia,
   Paper,
 } from "@mui/material";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import {
-  CreditCard,
-  Delete,
   Facebook,
   Instagram,
   ShoppingCart,
@@ -186,7 +179,7 @@ export function ProductGrid({ categoria, products }) {
                   }}
                 >
                   <img
-                    src={`http://localhost:5000${producto.imagen}`}
+                    src={`http://localhost:3000${producto.imagen}`}
                     alt={producto.nombre}
                     style={{
                       maxWidth: "100%",

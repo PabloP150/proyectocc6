@@ -12,7 +12,7 @@ export default function Cart() {
         <Paper key={index} elevation={3} sx={{ mb: 2, p: 2 }}>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs={3}>
-              <img src={`http://localhost:5000${item.imagen}`} alt={item.nombre} style={{ width: '100%', height: 'auto' }} />
+              <img src={`http://localhost:3000${item.imagen}`} alt={item.nombre} style={{ width: '100%', height: 'auto' }} />
             </Grid>
             <Grid item xs={7}>
               <Typography variant="subtitle1">{item.nombre}</Typography>
