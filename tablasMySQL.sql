@@ -7,17 +7,18 @@ DROP TABLE Cliente;
 
 CREATE TABLE Producto(
 pid INTEGER PRIMARY KEY AUTO_INCREMENT,
-nombre VARCHAR(25),
+nombre VARCHAR(50),
 precio DECIMAL(10,2),
 existencia INTEGER,
 categoria VARCHAR(25),
-descripcion VARCHAR(100),
+descripcion VARCHAR(255),
 imagen VARCHAR(255)
 );
 
 CREATE TABLE Cliente(
 cid INTEGER PRIMARY KEY AUTO_INCREMENT,
-usuario VARCHAR(25),
+nombre VARCHAR(30),
+usuario VARCHAR(25) UNIQUE,
 contraseña VARCHAR(255)
 );
 

@@ -21,4 +21,6 @@ VALUES
 ('M.1 SAMSUNG Serie 990 PRO', 260.00, 100, 'storage', 'SAMSUNG Serie 990 PRO - 2TB PCIe Gen4. X4 NVMe 2.0c - SSD interno M.2 (MZ-V9P2T0B/AM)', '/images/m2.png'),
 ('Kingston SSD', 130.00, 100, 'storage', 'Kingston SSD - HDD interno', '/images/ssd.jpg');
 
+
+select * from cliente;
 select * from producto;

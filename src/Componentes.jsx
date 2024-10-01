@@ -11,13 +11,14 @@ import {
   Box,
   Grid,
   Paper,
+  Button,
 } from "@mui/material";
 import {
   Facebook,
   Instagram,
   ShoppingCart,
 } from "@mui/icons-material";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "./CartContext";
 
 export function Header() {
@@ -27,40 +28,57 @@ export function Header() {
       width={"100%"}
       display="flex"
       flexDirection="column"
-      justifyContent="flex-start"
+      justifyContent="center"
       alignItems="center"
       textAlign="center"
-      sx={{ backgroundImage: `url('/images/header.jpg')` }}
+      sx={{
+        backgroundImage: `url('/images/header.jpg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        filter: 'brightness(75%)'
+      }}
     >
-      <h1
-        style={{
-          fontSize: "3rem",
+      <Typography
+        variant="h3"
+        component="h1"
+        sx={{
           color: "white",
-          WebkitTextStroke: "1.5px black",
-          marginBottom: "0px",
+          textShadow: "1px 1px 10px rgba(0,0,0,0.7)",
         }}
       >
         CPMP COMPONENTS
-      </h1>
-      <h1
-        style={{
-          fontSize: "1.8rem",
+      </Typography>
+      <Typography
+        variant="h5"
+        component="h2"
+        sx={{
           color: "white",
-          WebkitTextStroke: "1px black",
+          textShadow: "1px 1px 5px rgba(0,0,0,0.5)",
         }}
       >
         For all your computer needs!
-      </h1>
+      </Typography>
     </Box>
   );
 }
 
 export function Navbar() {
+  // Utiliza el contexto del carrito para obtener el contador de artículos
   const { counter } = useCart();
+  // Hook para la navegación programática
+  const navigate = useNavigate();
+  // Obtiene el nombre de usuario del almacenamiento local
+  const username = localStorage.getItem('username');
+
+  // Función para manejar el cierre de sesión
+  const handleLogout = () => {
+    navigate('/login'); // Redirige al usuario a la página de inicio de sesión
+  };
 
   return (
     <AppBar position="sticky" sx={{ backgroundColor: "#176B87" }}>
       <Toolbar>
+        {/* Enlaces de navegación para diferentes secciones del sitio */}
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
             Home
@@ -106,6 +124,18 @@ export function Navbar() {
             Storage
           </Link>
         </Typography>
+        {/* Condición para mostrar información de usuario o botón de inicio de sesión */}
+        {username ? (
+          <>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              Bienvenido: {username}
+            </Typography>
+            <Button color="inherit" onClick={handleLogout}>Cerrar Sesión</Button>
+          </>
+        ) : (
+          <Button color="inherit" component={Link} to="/login">Iniciar Sesión</Button>
+        )}
+        {/* Icono del carrito de compras con contador */}
         <Link to="/cart" style={{ textDecoration: "none", color: "inherit" }}>
         <IconButton color="inherit">
             <ShoppingCart />

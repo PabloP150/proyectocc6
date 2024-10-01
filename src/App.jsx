@@ -5,14 +5,16 @@ import Category from './pages/Category';
 import Producto from './pages/Product';
 import Cart from './pages/Cart.jsx';
 import { CartProvider } from './CartContext';
+import Login from './pages/Login';
+import Register from './pages/Register'; // Añade esta línea
 
 export default function App() {
   return (
-    // Envuelve toda la aplicación con el CartProvider para compartir el estado del carrito
+    // Envuelve toda la aplicación con el CartProvider para compartir el estado del carrito entre componentes
     <CartProvider>
-      {/* BrowserRouter permite la navegación entre páginas */}
+      {/* BrowserRouter permite la navegación entre páginas usando la barra de direcciones */}
       <BrowserRouter>
-        {/* Routes define las rutas de la aplicación */}
+        {/* Routes define las rutas de la aplicación y los componentes que se renderizarán */}
         <Routes>
           {/* Ruta para la página principal */}
           <Route path="/" element={<Home />} />
@@ -27,6 +29,12 @@ export default function App() {
           
           {/* Ruta para la página del carrito de compras */}
           <Route path="/cart" element={<Cart />} />
+          
+          {/* Ruta para la página de inicio de sesión */}
+          <Route path="/login" element={<Login />} />
+          
+          {/* Ruta para la página de registro */}
+          <Route path="/register" element={<Register />} />
         </Routes>
       </BrowserRouter>
     </CartProvider>
