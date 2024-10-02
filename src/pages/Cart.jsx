@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Header, Navbar, Footer } from "../Componentes";
 import { Box, Typography, Grid, Paper, Button } from '@mui/material';
+import { Link } from 'react-router-dom';
 import { useCart } from '../CartContext';
 
 export default function Cart() {
@@ -82,7 +83,9 @@ export default function Cart() {
                 </Typography>
                 {/* Botón para proceder al checkout */}
                 <Button variant="contained" color="success" fullWidth sx={{ mt: 2 }}>
-                  Pasar Al Checkout
+                  <Link to="/checkout" style={{ textDecoration: "none", color: "inherit" }}>
+                    Proceed to checkout
+                  </Link>
                 </Button>
               </Paper>
             </Grid>

@@ -6,6 +6,7 @@ import Producto from './pages/Product';
 import Cart from './pages/Cart.jsx';
 import { CartProvider } from './CartContext';
 import Login from './pages/Login';
+import Checkout from './pages/Checkout';
 import Register from './pages/Register'; // Añade esta línea
 
 export default function App() {
@@ -35,6 +36,9 @@ export default function App() {
           
           {/* Ruta para la página de registro */}
           <Route path="/register" element={<Register />} />
+
+          {/* Ruta para la página de courier/pago */}
+          <Route path="/checkout" element={<Checkout />} />
         </Routes>
       </BrowserRouter>
     </CartProvider>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Box, Typography, CircularProgress } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { Header, Navbar, ProductGrid, Footer } from '../Componentes';
 
 export default function Category() {

@@ -14,10 +14,14 @@ import {
   Button,
   Menu,
   MenuItem,
+  TextField,
+  Card,
+  CardContent,
 } from "@mui/material";
-import { Facebook, Instagram, ShoppingCart } from "@mui/icons-material";
+import { CreditCard, Facebook, Instagram, ShoppingCart } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "./CartContext";
+import { useState } from "react";
 
 export function Header() {
   return (
@@ -32,8 +36,7 @@ export function Header() {
       sx={{
         backgroundImage: `url('/images/header.jpg')`,
         backgroundSize: "cover",
-        backgroundPosition: "center",
-        filter: "brightness(75%)",
+        backgroundPosition: "center"
       }}
     >
       <Typography
@@ -44,7 +47,7 @@ export function Header() {
           textShadow: "1px 1px 10px rgba(0,0,0,0.7)",
         }}
       >
-        CPN COMPONENTS
+        CPN Electronics
       </Typography>
       <Typography
         variant="h5"

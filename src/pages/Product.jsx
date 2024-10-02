@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Box, Typography, CircularProgress, Grid, Button } from '@mui/material';
+import { Box, Typography, Grid, Button } from '@mui/material';
 import { Header, Navbar, Footer, ProductGrid } from '../Componentes';
 import { useCart } from '../CartContext';
 
