@@ -12,12 +12,10 @@ import {
   Grid,
   Paper,
   Button,
+  Menu,
+  MenuItem,
 } from "@mui/material";
-import {
-  Facebook,
-  Instagram,
-  ShoppingCart,
-} from "@mui/icons-material";
+import { Facebook, Instagram, ShoppingCart } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "./CartContext";
 
@@ -33,9 +31,9 @@ export function Header() {
       textAlign="center"
       sx={{
         backgroundImage: `url('/images/header.jpg')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        filter: 'brightness(75%)'
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        filter: "brightness(75%)",
       }}
     >
       <Typography
@@ -46,7 +44,7 @@ export function Header() {
           textShadow: "1px 1px 10px rgba(0,0,0,0.7)",
         }}
       >
-        CPMP COMPONENTS
+        CPN COMPONENTS
       </Typography>
       <Typography
         variant="h5"
@@ -68,11 +66,28 @@ export function Navbar() {
   // Hook para la navegación programática
   const navigate = useNavigate();
   // Obtiene el nombre de usuario del almacenamiento local
-  const username = localStorage.getItem('username');
+  const username = localStorage.getItem("username");
+
+  // Estado para el menú desplegable
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
 
   // Función para manejar el cierre de sesión
   const handleLogout = () => {
-    navigate('/login'); // Redirige al usuario a la página de inicio de sesión
+    // Limpia el almacenamiento local
+    localStorage.removeItem("username");
+    localStorage.removeItem("userId");
+    // Redirige al usuario a la página principal
+    navigate("/"); // Cambiado de '/login' a '/'
+    setAnchorEl(null);
+  };
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
   };
 
   return (
@@ -127,17 +142,33 @@ export function Navbar() {
         {/* Condición para mostrar información de usuario o botón de inicio de sesión */}
         {username ? (
           <>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Bienvenido: {username}
-            </Typography>
-            <Button color="inherit" onClick={handleLogout}>Cerrar Sesión</Button>
+            <Button
+              color="inherit"
+              aria-controls="simple-menu"
+              aria-haspopup="true"
+              onClick={handleClick}
+            >
+              {/* nombre de usuario */}
+              {username}
+            </Button>
+            <Menu
+              id="simple-menu"
+              anchorEl={anchorEl}
+              keepMounted
+              open={open}
+              onClose={handleClose}
+            >
+              <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
+            </Menu>
           </>
         ) : (
-          <Button color="inherit" component={Link} to="/login">Iniciar Sesión</Button>
+          <Button color="inherit" component={Link} to="/login">
+            Iniciar Sesión
+          </Button>
         )}
         {/* Icono del carrito de compras con contador */}
         <Link to="/cart" style={{ textDecoration: "none", color: "inherit" }}>
-        <IconButton color="inherit">
+          <IconButton color="inherit">
             <ShoppingCart />
             <Typography variant="body1" style={{ marginLeft: "5px" }}>
               ({counter})
@@ -152,7 +183,7 @@ export function Navbar() {
 // Componente que renderiza una lista de categorías de productos
 export function CategoryList() {
   return (
-    // Crea una lista de navegación con el componente 
+    // Crea una lista de navegación con el componente
     <List component="nav" aria-label="product categories">
       {/* Itera sobre un array de categorías predefinidas */}
       {["GPUs", "CPUs", "Motherboards", "RAM", "Storage"].map((categoria) => (
@@ -238,58 +269,58 @@ export function ProductGrid({ categoria, products }) {
     </Box>
   );
 }
-    
+
 export function Footer() {
   return (
-      <>
-        <footer
-          style={{
-            backgroundColor: "#176B87",
-            padding: "5px",
-            marginTop: "5vh",
-          }}
-        >
-          <Container maxWidth="lg">
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Typography variant="h6" align="left" gutterBottom color={"white"}>
-                Contact Us<br></br>
-                53304943
-              </Typography>
-              <div>
-                <IconButton
-                  aria-label="Facebook"
-                  component={Link}
-                  href="https://www.facebook.com/"
-                  fontSize="large"
-                  sx={{ color: "white" }}
-                >
-                  <Facebook />
-                </IconButton>
-                <IconButton
-                  aria-label="Instagram"
-                  component={Link}
-                  href="https://www.instagram.com/"
-                  fontSize="large"
-                  sx={{ color: "white" }}
-                >
-                  <Instagram />
-                </IconButton>
-              </div>
-            </Box>
-            <Box>
-              <Typography variant="body2" color="textSecondary" align="center">
-                {"© "}
-                <Link to="/" sx={{ color: "white" }}>
-                  Your Website
-                </Link>
-              </Typography>
-            </Box>
-          </Container>
-        </footer>
-      </>
-    );
-  }
+    <>
+      <footer
+        style={{
+          backgroundColor: "#176B87",
+          padding: "5px",
+          marginTop: "5vh",
+        }}
+      >
+        <Container maxWidth="lg">
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Typography variant="h6" align="left" gutterBottom color={"white"}>
+              Contact Us<br></br>
+              53304943
+            </Typography>
+            <div>
+              <IconButton
+                aria-label="Facebook"
+                component={Link}
+                href="https://www.facebook.com/"
+                fontSize="large"
+                sx={{ color: "white" }}
+              >
+                <Facebook />
+              </IconButton>
+              <IconButton
+                aria-label="Instagram"
+                component={Link}
+                href="https://www.instagram.com/"
+                fontSize="large"
+                sx={{ color: "white" }}
+              >
+                <Instagram />
+              </IconButton>
+            </div>
+          </Box>
+          <Box>
+            <Typography variant="body2" color="textSecondary" align="center">
+              {"© "}
+              <Link to="/" sx={{ color: "white" }}>
+                Your Website
+              </Link>
+            </Typography>
+          </Box>
+        </Container>
+      </footer>
+    </>
+  );
+}

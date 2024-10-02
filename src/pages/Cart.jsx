@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header, Navbar, Footer } from "../Componentes";
 import { Box, Typography, Grid, Paper, Button } from '@mui/material';
 import { useCart } from '../CartContext';
@@ -6,6 +6,9 @@ import { useCart } from '../CartContext';
 export default function Cart() {
   // Obtiene las funciones y el estado del carrito del contexto
   const { cart, removeFromCart, counter } = useCart();
+
+  // Estado para almacenar el total del carrito
+  const [total, setTotal] = useState(0);
 
   // Función para agrupar productos iguales en el carrito
   const groupedCart = cart.reduce((acc, item) => {
@@ -19,6 +22,12 @@ export default function Cart() {
     }
     return acc;
   }, []);
+
+  // Efecto para calcular el total cada vez que el carrito cambie
+  useEffect(() => {
+    const newTotal = groupedCart.reduce((sum, item) => sum + parseFloat(item.precio) * item.quantity, 0);
+    setTotal(newTotal);
+  }, [groupedCart]); // Dependencia en groupedCart para recalcular cuando cambie
 
   // Componente para mostrar la lista de productos en el carrito
   const CartList = ({ groupedCart }) => (
@@ -69,7 +78,7 @@ export default function Cart() {
                 <Typography variant="h6" gutterBottom>Resumen Del Pedido</Typography>
                 {/* Cálculo del total del pedido */}
                 <Typography>
-                  Total: ${groupedCart.reduce((sum, item) => sum + parseFloat(item.precio) * item.quantity, 0).toFixed(2)}
+                  Total: ${total.toFixed(2)}
                 </Typography>
                 {/* Botón para proceder al checkout */}
                 <Button variant="contained" color="success" fullWidth sx={{ mt: 2 }}>
