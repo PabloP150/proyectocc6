@@ -23,7 +23,8 @@ export default function Checkout(props) {
       { value: 'alcexpress', label: 'ALC Express' },
     ];
 
-    const getPrice = () => {
+    const getPrice = (e) => {
+      e.preventDefault
       switch (selectedCourier) {
         case 'ugexpress':
           return 10.99;

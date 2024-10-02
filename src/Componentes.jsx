@@ -85,6 +85,11 @@ export function Navbar() {
     setAnchorEl(null);
   };
 
+  const handleTracker = () => {
+    navigate("/tracker");
+    setAnchorEl(null);
+  };
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -161,6 +166,7 @@ export function Navbar() {
               open={open}
               onClose={handleClose}
             >
+              <MenuItem onClick={handleTracker}>Tracker</MenuItem>
               <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
             </Menu>
           </>

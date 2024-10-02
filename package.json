@@ -20,10 +20,11 @@
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.2",
     "react-scripts": "5.0.1",
+    "react-select": "^5.8.1",
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
-  "@babel/plugin-proposal-private-property-in-object": "^7.18.8"
+    "@babel/plugin-proposal-private-property-in-object": "^7.18.8"
   },
   "scripts": {
     "start": "react-scripts start",
