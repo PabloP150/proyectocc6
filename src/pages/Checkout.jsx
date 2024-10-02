@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header, Navbar, Footer } from "../Componentes";
 import { Box, Typography, Button, Card, CardContent, IconButton, TextField, Radio, RadioGroup, FormControlLabel } from '@mui/material';
 import { Link } from 'react-router-dom';
@@ -7,16 +7,36 @@ import { useLocation } from 'react-router-dom';
 
 export default function Checkout(props) {
 
-  const location = useLocation();
-  const { total: cartTotal } = location.state || { total: 0 };
 
+  
   const CourierInfo = () => {
     const [postalCode, setPostalCode] = useState('');
-    const [direction, setDirection] = useState('');
+    const [address, setAddress] = useState('');
     const [selectedCourier, setSelectedCourier] = useState('');
     const [courierPrice, setCourierPrice] = useState(0);
-    const [total, setTotal] = useState(0);
+    const [verifiedPostalCode, setVerifiedPostalCode] = useState('');
+    const [verifiedAddress, setVerifiedAddress] = useState('');
+    const [data, setData] = useState('');
+    const [loading, setLoading] = useState('');
 
+    const fetchData = async () => {
+      try {
+        const response = await fetch('https://api.openweathermap.org/data/2.5/weather?q=Guatemala&appid=48c053ba503a559cc375f030d1c7db1a');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const jsonData = await response.json();
+        setData(jsonData);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setLoading(false);
+      }
+    };
+  
+    const location = useLocation();
+    const { total: cartTotal } = location.state || { total: 0 };
+    
     const handleCourierChange = (event) => {
       setSelectedCourier(event.target.value);
     };
@@ -43,7 +63,19 @@ export default function Checkout(props) {
       const courierCost = getCourierCost();
       return (courierCost + cartTotal).toFixed(2);
     };
-    
+
+    const handleVerify = () => {
+      fetchData();
+      setVerifiedPostalCode(postalCode);
+      setVerifiedAddress(address);
+    };
+
+    useEffect(() => {
+      if (data) {
+        console.log('Data:', data);
+      }
+    }, [data]);
+
     return (
       <Card
         variant="outlined"
@@ -110,8 +142,8 @@ export default function Checkout(props) {
             fullWidth
             required
             rows={3}
-            value={direction}
-            onChange={(e) => setDirection(e.target.value)}
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
             style={{ marginBottom: "10px", width: "100%" }}
           />
           <Box
@@ -125,26 +157,28 @@ export default function Checkout(props) {
             }}
           >
             <Button
-              type="submit"
               variant="contained"
               color="primary"
-              id="btn"
+              onClick={handleVerify}
             >
-              <Link to="/checkout" style={{ textDecoration: "none", color: "inherit" }}>
-                Verify
-              </Link>
+              Verify
             </Button>
 
             <Box>
-            <Typography variant="h6" style={{ color: "gray" }}>
-              Courier cost: ${getCourierCost().toFixed(2)}
-            </Typography>
-            <Typography variant="h6" style={{ color: "gray" }}>
-              Total: ${getTotal()}
-            </Typography>
+              <Typography variant="h6" style={{ color: "gray" }}>
+                Courier cost: ${getCourierCost().toFixed(2)}
+              </Typography>
+              <Typography variant="h6" style={{ color: "gray" }}>
+                Total: ${getTotal()}
+              </Typography>
             </Box>
-
           </Box>
+          {verifiedPostalCode && verifiedAddress && (
+            <Box mt={2}>
+              <Typography variant="body1">Verified Postal Code: {verifiedPostalCode}</Typography>
+              <Typography variant="body1">Verified Address: {verifiedAddress}</Typography>
+            </Box>
+          )}
         </CardContent>
       </Card>
     );
@@ -293,9 +327,6 @@ export default function Checkout(props) {
               color="primary"
               id="btn"
             >
-              <Link to="/checkout" style={{ textDecoration: "none", color: "inherit" }}>
-                Confirm
-              </Link>
             </Button>
           </form>
         </CardContent>
