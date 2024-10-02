@@ -27,8 +27,7 @@ export default function Checkout(props) {
       { value: 'alcexpress', label: 'ALC Express' },
     ];
 
-    const getPrice = () => {
-      
+    const getCourierCost = () => {
       switch (selectedCourier) {
         case 'ugexpress':
           return 10.99;
@@ -40,12 +39,11 @@ export default function Checkout(props) {
           return 0;
       }
     };
-
     const getTotal = () => {
       const courierCost = getCourierCost();
       return (courierCost + cartTotal).toFixed(2);
     };
-
+    
     return (
       <Card
         variant="outlined"
