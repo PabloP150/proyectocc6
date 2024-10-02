@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Header, Navbar, Footer } from "../Componentes";
 import { Box, Typography, Grid, Paper, Button } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../CartContext';
 
 export default function Cart() {
@@ -59,6 +59,12 @@ export default function Cart() {
     </Box>
   );
 
+  const navigate = useNavigate();
+
+  const handleCheckout = () => {
+    navigate('/checkout', { state: { total: total } });
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Header />
@@ -82,7 +88,7 @@ export default function Cart() {
                   Total: ${total.toFixed(2)}
                 </Typography>
                 {/* Botón para proceder al checkout */}
-                <Button variant="contained" color="success" fullWidth sx={{ mt: 2 }}>
+                <Button variant="contained" color="success" fullWidth sx={{ mt: 2 }} onClick={handleCheckout}>
                   <Link to="/checkout" style={{ textDecoration: "none", color: "inherit" }}>
                     Proceed to checkout
                   </Link>

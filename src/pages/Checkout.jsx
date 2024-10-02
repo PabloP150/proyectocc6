@@ -1,17 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Header, Navbar, Footer } from "../Componentes";
 import { Box, Typography, Button, Card, CardContent, IconButton, TextField, Radio, RadioGroup, FormControlLabel } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { CreditCard } from '@mui/icons-material';
-
+import { useLocation } from 'react-router-dom';
 
 export default function Checkout(props) {
+
+  const location = useLocation();
+  const { total: cartTotal } = location.state || { total: 0 };
 
   const CourierInfo = () => {
     const [postalCode, setPostalCode] = useState('');
     const [direction, setDirection] = useState('');
     const [selectedCourier, setSelectedCourier] = useState('');
-    const [courierPrice, setCourierPrice] = useState('');
+    const [courierPrice, setCourierPrice] = useState(0);
+    const [total, setTotal] = useState(0);
 
     const handleCourierChange = (event) => {
       setSelectedCourier(event.target.value);
@@ -23,7 +27,7 @@ export default function Checkout(props) {
       { value: 'alcexpress', label: 'ALC Express' },
     ];
 
-    const getPrice = () => {
+    const getCourierCost = () => {
       switch (selectedCourier) {
         case 'ugexpress':
           return 10.99;
@@ -36,9 +40,10 @@ export default function Checkout(props) {
       }
     };
 
-    useEffect(() => {
-      setCourierPrice(`$${getPrice().toFixed(2)}`);
-    }, [selectedCourier]);
+    const getTotal = () => {
+      const courierCost = getCourierCost();
+      return (courierCost + cartTotal).toFixed(2);
+    };
 
     return (
       <Card
@@ -114,10 +119,9 @@ export default function Checkout(props) {
             sx={{
               display: 'flex',
               flexDirection: { xs: 'column', md: 'row' },
-              justifyContent: 'space-evenly',
+              justifyContent: 'space-between',
               alignItems: { xs: 'center', md: 'flex-start' },
               width: '95%',
-              padding: '20px',
               gap: '20px',
             }}
           >
@@ -134,10 +138,10 @@ export default function Checkout(props) {
 
             <Box>
             <Typography variant="h6" style={{ color: "gray" }}>
-              {selectedCourier ? `Courier cost: ${courierPrice}` : 'Please select a courier'}
+              Courier cost: ${getCourierCost().toFixed(2)}
             </Typography>
             <Typography variant="h6" style={{ color: "gray" }}>
-              Total: ${selectedCourier ? (parseFloat(props.cost) + parseFloat(courierPrice.replace('$', ''))).toFixed(2) : parseFloat(props.cost).toFixed(2)}
+              Total: ${getTotal()}
             </Typography>
             </Box>
 
