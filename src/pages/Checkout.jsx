@@ -216,12 +216,12 @@ export default function Checkout(props) {
       const card = e.target.cardNumber.value.length;
       const ccvv = e.target.cvv.value.length;
 
-      if (card < 13 || card > 18) {
-        alert("Ingrese una tarjeta válida entre 13 y 18 números");
+      if (card != 16) {
+        alert("Enter a valid 16 digit card number");
       } else if (ccvv < 3 || ccvv > 4) {
-        alert("Ingrese un CVV válido entre 3 y 4");
+        alert("Enter a valid cvv 3-4 digit code");
       } else {
-        alert("Gracias por tu compra " + cname);
+        alert("Thank you for you purchase, " + cname);
         e.target.reset();
       }
     };
