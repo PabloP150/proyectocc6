@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Header, Navbar, Footer } from "../Componentes";
 import { Box, Typography, Button, Card, CardContent, IconButton, TextField, Radio, RadioGroup, FormControlLabel } from '@mui/material';
-import { Link } from 'react-router-dom';
 import { CreditCard } from '@mui/icons-material';
 import { useLocation } from 'react-router-dom';
 
+
 export default function Checkout(props) {
 
-
-  
   const CourierInfo = () => {
     const [postalCode, setPostalCode] = useState('');
     const [address, setAddress] = useState('');
@@ -18,10 +16,11 @@ export default function Checkout(props) {
     const [verifiedAddress, setVerifiedAddress] = useState('');
     const [data, setData] = useState('');
     const [loading, setLoading] = useState('');
+    const [areaCovered, setAreaCovered] = useState(true);
 
     const fetchData = async () => {
       try {
-        const response = await fetch('https://api.openweathermap.org/data/2.5/weather?q=Guatemala&appid=48c053ba503a559cc375f030d1c7db1a');
+        const response = await fetch('http://192.168.0.101/consulta.php?destino=01001&formato=json');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -33,10 +32,10 @@ export default function Checkout(props) {
         setLoading(false);
       }
     };
-  
+
     const location = useLocation();
     const { total: cartTotal } = location.state || { total: 0 };
-    
+
     const handleCourierChange = (event) => {
       setSelectedCourier(event.target.value);
     };
@@ -68,11 +67,22 @@ export default function Checkout(props) {
       fetchData();
       setVerifiedPostalCode(postalCode);
       setVerifiedAddress(address);
+
+      if (data) {
+        if (data.consultaprecio.cobertura === 'FALSE') {
+          setAreaCovered(false);
+        } else {
+          setAreaCovered(true);
+        }
+      }
     };
 
     useEffect(() => {
       if (data) {
-        console.log('Data:', data);
+        console.log('Data:', data.consultaprecio.cobertura);
+        if (data.consultaprecio.cobertura === "FALSE") {
+          setAreaCovered(false);
+        }
       }
     }, [data]);
 
@@ -126,6 +136,9 @@ export default function Checkout(props) {
             ))}
           </RadioGroup>
 
+          {!areaCovered && (
+            <Typography variant="body1" color='red'>Area not covered</Typography>
+          )}
           <TextField
             label="Postal Code"
             variant="outlined"
@@ -135,6 +148,15 @@ export default function Checkout(props) {
             onChange={(e) => setPostalCode(e.target.value)}
             style={{ marginBottom: "10px", width: "100%" }}
           />
+          <Typography
+            variant="body1"
+            style={{
+              color: "red",
+              marginBottom: "10px",
+              display: areaCovered ? "none" : "block"
+            }}
+          >
+          </Typography>
 
           <TextField
             label="Address"
@@ -327,6 +349,7 @@ export default function Checkout(props) {
               color="primary"
               id="btn"
             >
+              Confirm Purchase
             </Button>
           </form>
         </CardContent>
