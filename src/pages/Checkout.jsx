@@ -11,16 +11,18 @@ export default function Checkout(props) {
     const [postalCode, setPostalCode] = useState('');
     const [address, setAddress] = useState('');
     const [selectedCourier, setSelectedCourier] = useState('');
+    const [courierName, setCourierName] = useState('');
     const [courierPrice, setCourierPrice] = useState(0);
-    const [verifiedPostalCode, setVerifiedPostalCode] = useState('');
-    const [verifiedAddress, setVerifiedAddress] = useState('');
     const [data, setData] = useState('');
-    const [loading, setLoading] = useState('');
+    const [loading, setLoading] = useState(true);
     const [areaCovered, setAreaCovered] = useState(true);
+    const courierIP = "192.168.0.100";
+    const courierExt = "php";
+    const format = "json";
 
     const fetchData = async () => {
       try {
-        const response = await fetch('http://192.168.0.101/consulta.php?destino=01001&formato=json');
+        const response = await fetch(`http://${courierIP}/consulta.${courierExt}?destino=${postalCode}&formato=${format}`);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -37,7 +39,10 @@ export default function Checkout(props) {
     const { total: cartTotal } = location.state || { total: 0 };
 
     const handleCourierChange = (event) => {
-      setSelectedCourier(event.target.value);
+      const selectedValue = event.target.value;
+      setSelectedCourier(selectedValue);
+      const selectedOption = courierOptions.find(option => option.value === selectedValue);
+      setCourierName(selectedOption ? selectedOption.label : '');
     };
 
     const courierOptions = [
@@ -65,8 +70,8 @@ export default function Checkout(props) {
 
     const handleVerify = () => {
       fetchData();
-      setVerifiedPostalCode(postalCode);
-      setVerifiedAddress(address);
+      setPostalCode(postalCode);
+      setAddress(address);
 
       if (data) {
         if (data.consultaprecio.cobertura === 'FALSE') {
@@ -139,6 +144,9 @@ export default function Checkout(props) {
           {!areaCovered && (
             <Typography variant="body1" color='red'>Area not covered</Typography>
           )}
+          {(areaCovered && !loading) &&(
+            <Typography variant="body1" color='green'>Area covered!</Typography>
+          )}
           <TextField
             label="Postal Code"
             variant="outlined"
@@ -195,10 +203,10 @@ export default function Checkout(props) {
               </Typography>
             </Box>
           </Box>
-          {verifiedPostalCode && verifiedAddress && (
+          {postalCode && address && (
             <Box mt={2}>
-              <Typography variant="body1">Verified Postal Code: {verifiedPostalCode}</Typography>
-              <Typography variant="body1">Verified Address: {verifiedAddress}</Typography>
+              <Typography variant="body1">Verified Postal Code: {postalCode}</Typography>
+              <Typography variant="body1">Verified Address: {address}</Typography>
             </Box>
           )}
         </CardContent>
