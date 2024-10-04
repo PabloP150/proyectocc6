@@ -12,13 +12,22 @@ export default function Checkout(props) {
     const [address, setAddress] = useState('');
     const [selectedCourier, setSelectedCourier] = useState('');
     const [courierName, setCourierName] = useState('');
-    const [courierPrice, setCourierPrice] = useState(0);
+    const [courierCost, setCourierCost] = useState(0);
     const [data, setData] = useState('');
     const [loading, setLoading] = useState(true);
     const [areaCovered, setAreaCovered] = useState(true);
     const courierIP = "192.168.0.100";
     const courierExt = "php";
     const format = "json";
+    
+    const location = useLocation();
+    const { total: cartTotal } = location.state || { total: 0 };
+    
+    const courierOptions = [
+      { value: 'ugexpress', label: 'UGExpress' },
+      { value: 'mcqueen', label: 'Entregas McQueen' },
+      { value: 'alcexpress', label: 'ALC Express' },
+    ];
 
     const fetchData = async () => {
       try {
@@ -35,9 +44,6 @@ export default function Checkout(props) {
       }
     };
 
-    const location = useLocation();
-    const { total: cartTotal } = location.state || { total: 0 };
-
     const handleCourierChange = (event) => {
       const selectedValue = event.target.value;
       setSelectedCourier(selectedValue);
@@ -45,26 +51,7 @@ export default function Checkout(props) {
       setCourierName(selectedOption ? selectedOption.label : '');
     };
 
-    const courierOptions = [
-      { value: 'ugexpress', label: 'UGExpress' },
-      { value: 'mcqueen', label: 'Entregas McQueen' },
-      { value: 'alcexpress', label: 'ALC Express' },
-    ];
-
-    const getCourierCost = () => {
-      switch (selectedCourier) {
-        case 'ugexpress':
-          return 10.99;
-        case 'mcqueen':
-          return 9.99;
-        case 'alcexpress':
-          return 8.99;
-        default:
-          return 0;
-      }
-    };
     const getTotal = () => {
-      const courierCost = getCourierCost();
       return (courierCost + cartTotal).toFixed(2);
     };
 
@@ -74,17 +61,18 @@ export default function Checkout(props) {
       setAddress(address);
 
       if (data) {
-        if (data.consultaprecio.cobertura === 'FALSE') {
-          setAreaCovered(false);
-        } else {
+        if (data.consultaprecio.cobertura === 'TRUE') {
           setAreaCovered(true);
+          setCourierCost(parseFloat(data.consultaprecio.costo));
+        } else {
+          setAreaCovered(false);
         }
       }
     };
 
     useEffect(() => {
       if (data) {
-        console.log('Data:', data.consultaprecio.cobertura);
+        console.log('Data:', data.consultaprecio);
         if (data.consultaprecio.cobertura === "FALSE") {
           setAreaCovered(false);
         }
@@ -109,7 +97,7 @@ export default function Checkout(props) {
           padding: "15px"
         }}>
           <Typography variant="h6" style={{ color: "white" }}>
-            Shipping Information
+            Courier Information
           </Typography>
         </div>
         <CardContent style={{ padding: "20px" }}>
@@ -129,12 +117,7 @@ export default function Checkout(props) {
                 value={option.value}
                 control={<Radio />}
                 label={
-                  <Box display="flex" justifyContent="space-between" width="100%">
                     <Typography>{option.label}</Typography>
-                    {selectedCourier === option.value && (
-                      <Typography>{courierPrice}</Typography>
-                    )}
-                  </Box>
                 }
                 style={{ marginBottom: "10px", width: "100%" }}
               />
@@ -196,7 +179,7 @@ export default function Checkout(props) {
 
             <Box>
               <Typography variant="h6" style={{ color: "gray" }}>
-                Courier cost: ${getCourierCost().toFixed(2)}
+                Courier cost: ${courierCost.toFixed(2)}
               </Typography>
               <Typography variant="h6" style={{ color: "gray" }}>
                 Total: ${getTotal()}
@@ -281,17 +264,21 @@ export default function Checkout(props) {
                   maxHeight="10vh"
                   marginRight="0.5em"
                   marginLeft="0.5em"
-                  style={{
+                  sx={{
                     backgroundColor: "snow",
                     boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.16)',
                     padding: '10px',
-                    borderRadius: '4px'
+                    borderRadius: '4px',
+                    backgroundColor: selectedPayment === method.name ? "darkgray" : "transparent",
+                      '&:hover': {
+                        backgroundColor: selectedPayment === method.name ? "darkgray" : "rgba(23, 107, 135, 0.04)",
+                      }
                   }}
                 >
                   <Button
-                    variant={selectedPayment === method.name ? "contained" : "standard"}
+                    variant={selectedPayment === method.name ? "cover" : "standard"}
                     onClick={() => setSelectedPayment(method.name)}
-                    style={{
+                    sx={{
                       width: "100%",
                       height: "60px",
                       backgroundImage: `url(${method.image})`,
@@ -323,7 +310,7 @@ export default function Checkout(props) {
             <TextField
               id="nameCard"
               type="text"
-              label="Name on Card"
+              label="Cardholder Name"
               variant="outlined"
               required
               style={{ marginBottom: "10px", width: "100%" }}
