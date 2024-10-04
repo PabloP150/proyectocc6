@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Header, Navbar, Footer } from "../Componentes";
 import { Box, Typography, Button, Card, CardContent, IconButton, TextField, Radio, RadioGroup, FormControlLabel } from '@mui/material';
 import { CreditCard } from '@mui/icons-material';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 
 export default function Checkout(props) {
@@ -11,18 +11,19 @@ export default function Checkout(props) {
     const [postalCode, setPostalCode] = useState('');
     const [address, setAddress] = useState('');
     const [selectedCourier, setSelectedCourier] = useState('');
-    const [courierName, setCourierName] = useState('');
     const [courierCost, setCourierCost] = useState(0);
     const [data, setData] = useState('');
     const [loading, setLoading] = useState(true);
-    const [areaCovered, setAreaCovered] = useState(true);
+    const [areaCovered, setAreaCovered] = useState(false);
     const courierIP = "192.168.0.100";
     const courierExt = "php";
+    const cardIP = "192.168.0.101";
+    const cardExt = "php";
     const format = "json";
-    
+
     const location = useLocation();
     const { total: cartTotal } = location.state || { total: 0 };
-    
+
     const courierOptions = [
       { value: 'ugexpress', label: 'UGExpress' },
       { value: 'mcqueen', label: 'Entregas McQueen' },
@@ -45,22 +46,20 @@ export default function Checkout(props) {
     };
 
     const handleCourierChange = (event) => {
-      const selectedValue = event.target.value;
-      setSelectedCourier(selectedValue);
-      const selectedOption = courierOptions.find(option => option.value === selectedValue);
-      setCourierName(selectedOption ? selectedOption.label : '');
+      setSelectedCourier(event.target.value);
     };
 
     const getTotal = () => {
       return (courierCost + cartTotal).toFixed(2);
     };
 
-    const handleVerify = () => {
-      fetchData();
+    const handleVerify = async () => {
+      setLoading(true);
+      await fetchData();
       setPostalCode(postalCode);
       setAddress(address);
 
-      if (data) {
+      if (data && data.consultaprecio) {
         if (data.consultaprecio.cobertura === 'TRUE') {
           setAreaCovered(true);
           setCourierCost(parseFloat(data.consultaprecio.costo));
@@ -69,15 +68,6 @@ export default function Checkout(props) {
         }
       }
     };
-
-    useEffect(() => {
-      if (data) {
-        console.log('Data:', data.consultaprecio);
-        if (data.consultaprecio.cobertura === "FALSE") {
-          setAreaCovered(false);
-        }
-      }
-    }, [data]);
 
     return (
       <Card
@@ -109,7 +99,7 @@ export default function Checkout(props) {
             name="courier"
             value={selectedCourier}
             onChange={handleCourierChange}
-            style={{ marginBottom: "20px" }}
+            style={{ marginBottom: "1em" }}
           >
             {courierOptions.map((option) => (
               <FormControlLabel
@@ -117,17 +107,17 @@ export default function Checkout(props) {
                 value={option.value}
                 control={<Radio />}
                 label={
-                    <Typography>{option.label}</Typography>
+                  <Typography>{option.label}</Typography>
                 }
                 style={{ marginBottom: "10px", width: "100%" }}
               />
             ))}
           </RadioGroup>
 
-          {!areaCovered && (
+          {!areaCovered && postalCode && !loading && selectedCourier && (
             <Typography variant="body1" color='red'>Area not covered</Typography>
           )}
-          {(areaCovered && !loading) &&(
+          {areaCovered && postalCode && !loading && selectedCourier && (
             <Typography variant="body1" color='green'>Area covered!</Typography>
           )}
           <TextField
@@ -137,7 +127,7 @@ export default function Checkout(props) {
             required
             value={postalCode}
             onChange={(e) => setPostalCode(e.target.value)}
-            style={{ marginBottom: "10px", width: "100%" }}
+            style={{ marginTop: "0.5em", marginBottom: "10px", width: "100%" }}
           />
           <Typography
             variant="body1"
@@ -159,6 +149,14 @@ export default function Checkout(props) {
             onChange={(e) => setAddress(e.target.value)}
             style={{ marginBottom: "10px", width: "100%" }}
           />
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleVerify}
+            fullWidth
+          >
+            Verify
+          </Button>
           <Box
             sx={{
               display: 'flex',
@@ -167,24 +165,21 @@ export default function Checkout(props) {
               alignItems: { xs: 'center', md: 'flex-start' },
               width: '95%',
               gap: '20px',
+              marginTop: '0.5em'
             }}
           >
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleVerify}
-            >
-              Verify
-            </Button>
-
+            <Typography variant="h6" style={{ color: "gray" }}>
+              Order cost: ${cartTotal.toFixed(2)}
+            </Typography>
             <Box>
-              <Typography variant="h6" style={{ color: "gray" }}>
-                Courier cost: ${courierCost.toFixed(2)}
-              </Typography>
-              <Typography variant="h6" style={{ color: "gray" }}>
-                Total: ${getTotal()}
-              </Typography>
+
+            <Typography variant="h6" style={{ color: "red" }}>
+              Courier cost: +${courierCost.toFixed(2)}
+            </Typography>
             </Box>
+            <Typography variant="h6" style={{ color: "black" }}>
+              Total: ${getTotal()}
+            </Typography>
           </Box>
           {postalCode && address && (
             <Box mt={2}>
@@ -207,7 +202,7 @@ export default function Checkout(props) {
       const card = e.target.cardNumber.value.length;
       const ccvv = e.target.cvv.value.length;
 
-      if (card != 16) {
+      if (card !== 16) {
         alert("Enter a valid 16 digit card number");
       } else if (ccvv < 3 || ccvv > 4) {
         alert("Enter a valid cvv 3-4 digit code");
@@ -267,12 +262,13 @@ export default function Checkout(props) {
                   sx={{
                     backgroundColor: "snow",
                     boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.16)',
-                    padding: '10px',
+                    margin: '10px',
                     borderRadius: '4px',
-                    backgroundColor: selectedPayment === method.name ? "darkgray" : "transparent",
-                      '&:hover': {
-                        backgroundColor: selectedPayment === method.name ? "darkgray" : "rgba(23, 107, 135, 0.04)",
-                      }
+                    backgroundColor: selectedPayment === method.name ? 'lightgray' : 'snow',
+                    border: selectedPayment === method.name ? '2px solid black' : '2px solid transparent',
+                    '&:hover': {
+                      backgroundColor: '#E0E0E0'
+                    }
                   }}
                 >
                   <Button
@@ -343,8 +339,11 @@ export default function Checkout(props) {
               variant="contained"
               color="primary"
               id="btn"
+              fullWidth
             >
-              Confirm Purchase
+              <Link to="/tracker" style={{ textDecoration: "none", color: "inherit" }}>
+                Pay
+              </Link>
             </Button>
           </form>
         </CardContent>

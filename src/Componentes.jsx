@@ -166,8 +166,8 @@ export function Navbar() {
               open={open}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleTracker}>Tracker</MenuItem>
-              <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
+              <MenuItem onClick={handleTracker}>Track Package</MenuItem>
+              <MenuItem onClick={handleLogout}>Sign Out</MenuItem>
             </Menu>
           </>
         ) : (
