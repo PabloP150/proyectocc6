@@ -22,6 +22,7 @@ app.use(session({
   cookie: { secure: false } // Usar `true` solo si estás en HTTPS
 }));
 
+
 // Configuración para la conexión a la base de datos MySQL
 const connection = mysql.createConnection({
   host: '127.0.0.1',  // Dirección del servidor de base de datos
@@ -53,6 +54,7 @@ app.get('/api/productos', (req, res) => {
   });
 });
 
+
 // Ruta para registrar un nuevo usuario
 app.post('/api/register', (req, res) => {
   const { nombre, usuario, contraseña } = req.body;
@@ -71,6 +73,32 @@ app.post('/api/register', (req, res) => {
   });
 });
 
+
+// Ruta para obtener las ordenes
+app.post('/api/orden', (req, res) => {
+  const { userId, estado } = req.body;
+
+  const query = "SELECT * FROM orden WHERE cid = ? AND estado = ?";
+  connection.query(query, [userId, estado], (err, results) => {
+      if (err) {
+          console.error('Error en la consulta:', err);
+          res.status(500).send('Error interno del servidor');
+          return;
+      }
+      
+      if (results.length > 0) {
+          // Mapeamos los resultados para obtener solo los IDs de las órdenes
+          const orderIds = results.map(order => order.oid);
+          res.status(200).json({
+              orderIds: orderIds 
+          });
+      } else {
+          res.status(404).send('Usuario no encontrado');
+      }
+  });
+});
+
+
 // Ruta para iniciar sesión
 app.post('/api/login', (req, res) => {
   const { usuario, contraseña } = req.body;
@@ -85,7 +113,7 @@ app.post('/api/login', (req, res) => {
       req.session.userId = results[0].id; // Almacenar ID de usuario en la sesión
       req.session.usuario = results[0].usuario; // Almacenar nombre de usuario en la sesión
       res.status(200).json({
-        id: results[0].id,
+        id: results[0].cid,
         usuario: results[0].usuario,
         nombre: results[0].nombre
       });

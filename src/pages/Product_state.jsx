@@ -1,29 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './OrderProgress.css';
 import { Box, Typography } from '@mui/material';
 import { Header, Navbar, Footer } from '../Componentes';
 import Select from 'react-select';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProductState() {
     const totalSteps = 5; 
-    const completedSteps = 1;
+    const completedSteps = 1; 
     const [text, setText] = useState('entregada');
-    const [ordenID, setOrdenID] = useState('0522023882gb22');
     const tag = text === 'entregada' ? 'tag' : 'tag_blue';
     const completionPercentage = (completedSteps / totalSteps) * 100; 
     const [selectedOption, setSelectedOption] = useState(null);
-
-    // Data de prueba, estos datos serán dados por el fetch de la tabla
-    const data = [
-        { value: 1, label: "0522023882gb22" },
-        { value: 2, label: "05200238823gb2" },
-        { value: 3, label: "4523245882gb22" },
-        { value: 4, label: "29230230dhi433" }
-    ];
+    const userId = localStorage.getItem("userId");
+    const [data, setData] = useState([]);
+    const [error, setError] = useState(null);
+    const navigate = useNavigate(); 
 
     const handleChange = e => {
         setSelectedOption(e);
-    }
+    };
+
+    useEffect(() => {
+        const fetchOrders = async () => {
+            try {
+                // Datos para enviar en la petición POST
+                const formData = {
+                    userId: userId, 
+                    estado: 'f' 
+                };
+    
+                // Realiza una petición POST a la API para obtener las órdenes del usuario
+                const response = await axios.post('http://localhost:5000/api/orden', formData);
+                
+                console.log('Órdenes recibidas:', response.data);
+                
+                // Accede a orderIds y formatea los datos
+                const formattedData = response.data.orderIds.map(oid => ({
+                    value: oid,
+                    label: oid
+                }));
+        
+                setData(formattedData);
+            } catch (err) {
+                console.error('Error obteniendo las órdenes:', err);
+                setError(`Error al cargar las órdenes: ${err.response?.data?.error || err.message}`);
+            }
+        };
+    
+        fetchOrders();
+    }, [userId]);
+    
 
     return (
         <>
@@ -33,6 +61,7 @@ export default function ProductState() {
                 <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'left', p: 3 }}>
                     <div style={{ width: '100%' }}>
                         <Typography variant="h4">Control de orden</Typography>
+                        {error && <Typography color="error">{error}</Typography>} {/* Muestra el error si existe */}
                         <div className="select-container">
                             <Select
                                 placeholder="Select Option"
@@ -47,11 +76,11 @@ export default function ProductState() {
                                     <Typography variant="h4">Order 1</Typography>
                                     <Typography variant="body1">
                                         Order Number: {selectedOption ? selectedOption.label : 'N/A'}
-                                    </Typography>  
+                                    </Typography>
                                 </div>
-                                <p className={tag}>
+                                <div className={tag}>
                                     <Typography variant="body1">{text}</Typography>
-                                </p>
+                                </div>
                             </div>
 
                             <div className="steps">
