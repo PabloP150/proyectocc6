@@ -26,6 +26,7 @@ export default function Login() {
         e.preventDefault(); // Previene la recarga de la página
         axios.post('http://localhost:5000/api/login', formData)
             .then(response => {
+                console.log(response);
                 if (response && response.data) {
                     // Almacenamiento de datos del usuario en localStorage
                     localStorage.setItem('userId', response.data.id);
