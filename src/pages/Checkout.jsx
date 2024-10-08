@@ -62,8 +62,7 @@ const CourierInfo = React.memo(({ setCourierInfo, courierDB }) => {
     setVerify(true);
     setPostalCode(postalCode);
     setAddress(address);
-    alert(consulta);
-    console.log(consulta);
+    console.log("Solicitando consulta a: ", consulta);
   };
 
   return (
@@ -226,8 +225,7 @@ const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
 
   const solicitarAutorizacion = async () => {
     try {
-      alert(autorizacion);
-      console.log(autorizacion);
+      console.log("Solicitando autorizacion a: ", autorizacion);
       const response = await fetch(tempAutorizacion);
       if (!response.ok) {
         throw new Error('Network response was not ok');
@@ -241,8 +239,7 @@ const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
 
   const solicitarEnvio = async () => {
     try {
-      alert(envio);
-      console.log(envio);
+      console.log("Solicitando envio a: ", envio);
       const response = await fetch(envio);
       if (!response.ok) {
         throw new Error('Network response was not ok');
