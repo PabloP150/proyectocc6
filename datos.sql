@@ -21,6 +21,15 @@ VALUES
 ('M.1 SAMSUNG Serie 990 PRO', 260.00, 100, 'storage', 'SAMSUNG Serie 990 PRO - 2TB PCIe Gen4. X4 NVMe 2.0c - SSD interno M.2 (MZ-V9P2T0B/AM)', '/images/m2.png'),
 ('Kingston SSD', 130.00, 100, 'storage', 'Kingston SSD - HDD interno', '/images/ssd.jpg');
 
+INSERT INTO Courier VALUES 
+	('100000000000000', 'UGExpress', '192.168.0.103', '', '.php'),
+    ('100000000000001', 'Entregas McQueen', '192.168.0.115', '/crud-actividad/backend', '.php'),
+    ('100000000000002', 'ALC Express', '192.168.0.100', '', '.php');
 
-select * from cliente;
+INSERT INTO Tarjeta VALUES 
+	('000000000000000', 'Visa', '192.168.0.113', '/CCVI-Proyecto1', '.php'),
+    ('000000000000001', 'American Express', '192.168.0.105:3000', '/ProyectoCC6/tarjeta_de_credito', '.js'),
+    ('000000000000002', 'Mastercard', '192.168.0.109:3001', '', '.js'),
+    ('000000000000003', 'Credomatic', '192.168.0.116', '/TarjetaCredito', '.php');
+
 select * from producto;

@@ -123,6 +123,33 @@ app.post('/api/login', (req, res) => {
   });
 });
 
+// Ruta para obtener todos los couriers
+app.get('/api/couriers', (req, res) => {
+  const query = 'SELECT * FROM Courier';
+  
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error('Error en la consulta SQL:', err);
+      res.status(500).json({ error: 'Error al obtener los couriers', details: err.message });
+      return;
+    }
+    res.json(results);
+  });
+});
+
+// Ruta para obtener todas las tarjetas
+app.get('/api/tarjetas', (req, res) => {
+  const query = 'SELECT * FROM Tarjeta';
+  
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error('Error en la consulta SQL:', err);
+      res.status(500).json({ error: 'Error al obtener las tarjetas', details: err.message });
+      return;
+    }
+    res.json(results);
+  });
+});
 
 
 // Iniciar el servidor
