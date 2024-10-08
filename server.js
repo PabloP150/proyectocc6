@@ -87,16 +87,41 @@ app.post('/api/orden', (req, res) => {
       }
       
       if (results.length > 0) {
-          // Mapeamos los resultados para obtener solo los IDs de las órdenes
-          const orderIds = results.map(order => order.oid);
+          // Mapeamos los resultados para obtener tanto los IDs de las órdenes como los coid
+          const orderData = results.map(order => ({
+              oid: order.oid, // ID de la orden
+              coid: order.coid // ID del courier
+          }));
+          
           res.status(200).json({
-              orderIds: orderIds 
+              orderData: orderData // Enviamos un array de objetos con oid y coid
           });
       } else {
           res.status(404).send('Usuario no encontrado');
       }
   });
 });
+
+// Ruta para obtener los datos del courier
+app.post('/api/courier', (req, res) => {
+  const { coid } = req.body; 
+
+  const query = "SELECT * FROM courier WHERE coid = ?";
+  connection.query(query, [coid], (err, results) => {
+      if (err) {
+          console.error('Error en la consulta:', err);
+          res.status(500).send('Error interno del servidor');
+          return;
+      }
+
+      if (results.length > 0) {
+          res.status(200).json(results[0]);
+      } else {
+          res.status(404).send('No se encontró el courier');
+      }
+  });
+});
+
 
 
 // Ruta para iniciar sesión

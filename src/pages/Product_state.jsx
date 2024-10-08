@@ -15,43 +15,86 @@ export default function ProductState() {
     const [selectedOption, setSelectedOption] = useState(null);
     const userId = localStorage.getItem("userId");
     const [data, setData] = useState([]);
+    const [couriers, setCouriers] = useState([]);
     const [error, setError] = useState(null);
     const navigate = useNavigate(); 
-
-    const handleChange = e => {
+    
+    const handleChange = (e) => {
         setSelectedOption(e);
     };
+    
+    const fetchCourierData = async (orders) => {
+        try {
+            const couriersPromises = orders.map(async (order) => {
+                const courierResponse = await axios.post('http://localhost:5000/api/courier', { coid: order.coid });
+                
+                return {
+                    orderId: order.oid,
+                    courierInfo: courierResponse.data
+                };
+            });
 
+            const couriersData = await Promise.all(couriersPromises);
+            setCouriers(couriersData);
+        } catch (err) {
+            console.error('Error obteniendo los datos del courier:', err);
+        }
+    };
+    
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                // Datos para enviar en la petición POST
                 const formData = {
                     userId: userId, 
                     estado: 'f' 
                 };
-    
-                // Realiza una petición POST a la API para obtener las órdenes del usuario
+
                 const response = await axios.post('http://localhost:5000/api/orden', formData);
-                
-                console.log('Órdenes recibidas:', response.data);
-                
-                // Accede a orderIds y formatea los datos
-                const formattedData = response.data.orderIds.map(oid => ({
-                    value: oid,
-                    label: oid
-                }));
-        
-                setData(formattedData);
+
+                if (response.data.orderData && Array.isArray(response.data.orderData)) {
+                    const formattedData = response.data.orderData.map(orderId => {
+                        return {
+                            value: orderId.oid,
+                            label: orderId.oid 
+                        };
+                    });
+                    setData(formattedData);
+
+                    await fetchCourierData(response.data.orderData);
+                } else {
+                    console.log('Respuesta inesperada de la API:', response.data);
+                    setError('No se encontraron órdenes para este usuario');
+                }
             } catch (err) {
                 console.error('Error obteniendo las órdenes:', err);
-                setError(`Error al cargar las órdenes: ${err.response?.data?.error || err.message}`);
+                setError(`No se encontraron órdenes para este usuario`);
             }
         };
     
         fetchOrders();
     }, [userId]);
     
+    const selectedCourierInfo = selectedOption 
+        ? couriers.find(c => c.orderId === selectedOption.label) 
+        : null;
+
+    // Construir la URL de IP según el courier seleccionado
+    const getCourierStatusUrl = () => {
+        if (selectedCourierInfo) {
+            const orderId = selectedCourierInfo.orderId;
+            const courierInfo = selectedCourierInfo.courierInfo; // Objeto con información del courier
+            const base = courierInfo.ip; // Usa IP
+            const store = 'miTienda'; // Reemplaza esto con el valor de tienda correspondiente
+            const format = 'json'; // Reemplaza esto con el formato deseado
+            
+            // Añadir la carpeta si existe
+            const folder = courierInfo.carpeta ? `/${courierInfo.carpeta}` : '';
+            
+            // Construir la URL
+            return `http://${base}${folder}/status?orden=${orderId}&tienda=${store}&formato=${format}`;
+        }
+        return '';
+    };
 
     return (
         <>
@@ -61,7 +104,7 @@ export default function ProductState() {
                 <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'left', p: 3 }}>
                     <div style={{ width: '100%' }}>
                         <Typography variant="h4">Control de orden</Typography>
-                        {error && <Typography color="error">{error}</Typography>} {/* Muestra el error si existe */}
+
                         <div className="select-container">
                             <Select
                                 placeholder="Select Option"
@@ -113,6 +156,17 @@ export default function ProductState() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Mostrar información del courier si está disponible */}
+                        {selectedCourierInfo && (
+                            <div className="courier-info">
+                                <Typography variant="h5">Información del Courier:</Typography>
+                                <Typography variant="body1">Nombre: {selectedCourierInfo.courierInfo.nombre}</Typography>
+                                <Typography variant="body1">IP: {selectedCourierInfo.courierInfo.ip}</Typography>
+                                <Typography variant="body1">Carpeta: {selectedCourierInfo.courierInfo.carpeta || 'N/A'}</Typography>
+                                <Typography variant="body1">URL de estado: <a href={getCourierStatusUrl()}>{getCourierStatusUrl()}</a></Typography>
+                            </div>
+                        )}
                     </div>
                 </Box>
                 <Footer />
