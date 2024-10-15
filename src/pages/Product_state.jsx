@@ -8,19 +8,21 @@ import { useNavigate } from 'react-router-dom';
 
 export default function ProductState() {
     const totalSteps = 5; 
-    const completedSteps = 1; 
+    const [completedSteps, setCompletedSteps] = useState(1); 
     const [text, setText] = useState('entregada');
     const tag = text === 'entregada' ? 'tag' : 'tag_blue';
     const completionPercentage = (completedSteps / totalSteps) * 100; 
     const [selectedOption, setSelectedOption] = useState(null);
     const userId = localStorage.getItem("userId");
     const [data, setData] = useState([]);
+    const [finalData, setFinalData] = useState('');
     const [couriers, setCouriers] = useState([]);
     const [error, setError] = useState(null);
     const navigate = useNavigate(); 
     
-    const handleChange = (e) => {
+    const handleChange = async (e) => {
         setSelectedOption(e);
+        await fetchData();
     };
     
     const fetchCourierData = async (orders) => {
@@ -40,6 +42,26 @@ export default function ProductState() {
             console.error('Error obteniendo los datos del courier:', err);
         }
     };
+
+    const fetchData = async () => {
+        try {
+          const response = await fetch(getCourierStatusUrl());
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          const jsonData = await response.json();
+          setFinalData(jsonData);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+    };
+
+    useEffect(() => {
+        if (finalData) {
+            const status = parseInt(finalData.orden.status);
+            setCompletedSteps(status);
+        }
+    }, [finalData]);
     
     useEffect(() => {
         const fetchOrders = async () => {
@@ -82,15 +104,14 @@ export default function ProductState() {
     const getCourierStatusUrl = () => {
         if (selectedCourierInfo) {
             const orderId = selectedCourierInfo.orderId;
-            const courierInfo = selectedCourierInfo.courierInfo; // Objeto con información del courier
-            const base = courierInfo.ip; // Usa IP
-            const store = 'miTienda'; // Reemplaza esto con el valor de tienda correspondiente
-            const format = 'json'; // Reemplaza esto con el formato deseado
+            const courierInfo = selectedCourierInfo.courierInfo; 
+            const base = courierInfo.ip; 
+            const store = 'CPN%20Electronics'; 
+            const format = 'json'; 
             
             // Añadir la carpeta si existe
             const folder = courierInfo.carpeta ? `/${courierInfo.carpeta}` : '';
             
-            // Construir la URL
             return `http://${base}${folder}/status?orden=${orderId}&tienda=${store}&formato=${format}`;
         }
         return '';
@@ -157,7 +178,7 @@ export default function ProductState() {
                             </div>
                         </div>
 
-                        {/* Mostrar información del courier si está disponible */}
+                        {/* Mostrar información del courier si está disponible 
                         {selectedCourierInfo && (
                             <div className="courier-info">
                                 <Typography variant="h5">Información del Courier:</Typography>
@@ -166,7 +187,7 @@ export default function ProductState() {
                                 <Typography variant="body1">Carpeta: {selectedCourierInfo.courierInfo.carpeta || 'N/A'}</Typography>
                                 <Typography variant="body1">URL de estado: <a href={getCourierStatusUrl()}>{getCourierStatusUrl()}</a></Typography>
                             </div>
-                        )}
+                        )}*/}
                     </div>
                 </Box>
                 <Footer />
