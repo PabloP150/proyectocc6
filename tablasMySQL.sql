@@ -1,11 +1,11 @@
 #CREATE DATABASE proyectocc6;
-#USE proyectocc6;
+USE proyectocc6;
 
-#DROP TABLE Orden;
-#DROP TABLE Producto;
-#DROP TABLE Cliente;
-#DROP TABLE Tarjeta;
-#DROP TABLE Courier;
+DROP TABLE Orden;
+DROP TABLE Producto;
+DROP TABLE Cliente;
+DROP TABLE Tarjeta;
+DROP TABLE Courier;
 
 CREATE TABLE Producto(
 pid INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -42,15 +42,11 @@ extension VARCHAR(5)
 
 CREATE TABLE Orden(
 oid INTEGER PRIMARY KEY AUTO_INCREMENT,
-pid INTEGER,
 cid INTEGER,
-tid CHAR(15),
-coid CHAR(15), 
-estado VARCHAR(15),
+coid CHAR(15),
+estado CHAR(1),
 precioTotal DECIMAL(10,2),
-cantidad INTEGER,
-FOREIGN KEY (pid) REFERENCES Producto(pid),
 FOREIGN KEY (cid) REFERENCES Cliente(cid),
-FOREIGN KEY (tid) REFERENCES Tarjeta(tid),
 FOREIGN KEY (coid) REFERENCES Courier(coid)
 );
+ALTER TABLE Orden AUTO_INCREMENT = 1000000000;

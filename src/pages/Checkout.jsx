@@ -3,6 +3,7 @@ import { Header, Navbar, Footer } from "../Componentes";
 import { Box, Typography, Button, Card, CardContent, IconButton, TextField, Radio, RadioGroup, FormControlLabel } from '@mui/material';
 import { CreditCard } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const CourierInfo = React.memo(({ setCourierInfo, courierDB }) => {
 
@@ -17,9 +18,9 @@ const CourierInfo = React.memo(({ setCourierInfo, courierDB }) => {
   const { total: cartTotal } = location.state || { total: 0 };
 
   const couriers = courierDB[0] ? [
-    { value: 0, name: courierDB[0].nombre, ip: courierDB[0].ip, path: courierDB[0].carpeta, ext: courierDB[0].extension },
-    { value: 1, name: courierDB[1].nombre, ip: courierDB[1].ip, path: courierDB[1].carpeta, ext: courierDB[1].extension },
-    { value: 2, name: courierDB[2].nombre, ip: courierDB[2].ip, path: courierDB[2].carpeta, ext: courierDB[2].extension }
+    { value: 0, coid: courierDB[0].coid, name: courierDB[0].nombre, ip: courierDB[0].ip, path: courierDB[0].carpeta, ext: courierDB[0].extension },
+    { value: 1, coid: courierDB[1].coid, name: courierDB[1].nombre, ip: courierDB[1].ip, path: courierDB[1].carpeta, ext: courierDB[1].extension },
+    { value: 2, coid: courierDB[2].coid, name: courierDB[2].nombre, ip: courierDB[2].ip, path: courierDB[2].carpeta, ext: courierDB[2].extension }
   ] : [
     { value: 0, name: 'loading...' },
     { value: 1, name: 'loading...' },
@@ -27,12 +28,13 @@ const CourierInfo = React.memo(({ setCourierInfo, courierDB }) => {
   ];
 
   const format = "json";
-  const tempConsulta = `http://localhost:8000/consulta`;
   const consulta = `http://${courier.ip}${courier.path}/consulta${courier.ext}?destino=${postalCode}&formato=${format}`;
+  const tempConsulta = `http://localhost:8000/consulta`;
 
   const fetchData = async () => {
     try {
-      const response = await fetch(tempConsulta);
+      console.log(consulta);
+      const response = await fetch(consulta);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -122,6 +124,7 @@ const CourierInfo = React.memo(({ setCourierInfo, courierDB }) => {
           <Typography variant="body1" color='green'>Area covered!</Typography>
         )}
         <TextField
+          type='number'
           label="Postal Code"
           variant="outlined"
           fullWidth
@@ -202,9 +205,12 @@ const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
   const [cardName, setCardName] = useState("");
   const [cardNum, setCardNum] = useState("");
   const [date, setDate] = useState('');
+  const [formattedDate, setFormattedDate] = useState('');
   const [cvv, setCvv] = useState('');
   const [data, setData] = useState('');
   const [check, setCheck] = useState(false);
+  const [orderID, setOrderID] = useState(0);
+  const cid = localStorage.getItem('cid');
   const navigate = useNavigate();
 
   const cards = cardDB[0] ? [
@@ -212,21 +218,21 @@ const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
     { value: 1, name: cardDB[1].nombre, ip: cardDB[1].ip, path: cardDB[1].carpeta, ext: cardDB[1].extension, image: "/images/amex.png" },
     { value: 2, name: cardDB[2].nombre, ip: cardDB[2].ip, path: cardDB[2].carpeta, ext: cardDB[2].extension, image: "/images/mastercard.png" },
     { value: 3, name: cardDB[3].nombre, ip: cardDB[3].ip, path: cardDB[3].carpeta, ext: cardDB[3].extension, image: "/images/credomatic.png" }
-  ] : 
-  [];
+  ] :
+    [];
 
   const courier = courierInfo.courier;
   const format = "json";
   const autorizacion = `http://${card.ip}${card.path}/autorizacion${card.ext}?tarjeta=${cardNum}&nombre=${cardName}&fecha_venc=${date}&num_seguridad=${cvv}&monto=${courierInfo.totalCost}&tienda=CPN%20Electronics&formato=${format}`;
   const tempAutorizacion = `http://localhost:8000/authorizacion`;
 
-  const orderID = '12345'
-  const envio = `http://${courier.ip}${courier.path}/envio${courier.ext}?orden=${orderID}&destinario=${cardName}&destino=${courierInfo.postalCode}&direccion=${courierInfo.address}&tienda=CPN%20Electronics&formato=${format}`;
+  const envio = `http://${courier.ip}${courier.path}/envio${courier.ext}?orden=${orderID}&destinatario=${cardName}&destino=${courierInfo.postalCode}&direccion=${courierInfo.address}&tienda=CPN%20Electronics&formato=${format}`;
+  const tempEnvio = `http://localhost:8000/envio`;
 
   const solicitarAutorizacion = async () => {
     try {
       console.log("Solicitando autorizacion a: ", autorizacion);
-      const response = await fetch(tempAutorizacion);
+      const response = await fetch(autorizacion);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -246,18 +252,34 @@ const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
       }
       const jsonData = await response.json();
       setData(jsonData);
+
+      // Insertar la orden en la base de datos
+      const orderData = {
+        cid: cid,
+        coid: courier.coid,
+        estado: 'f',
+        precioTotal: courierInfo.totalCost
+      };
+
+      const orderResponse = await axios.post('http://localhost:5000/api/ordenNueva', orderData);
+      setOrderID(orderResponse.data.orderId);
+
+      console.log("Order Response:", orderResponse);
+      if (orderResponse.status !== 201) {
+        console.error('Error inserting order:', orderResponse.data);
+        throw new Error('Error inserting order');
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
 
   useEffect(() => {
-    if (data) {
+    if (data && data.autorizacion) {
+      console.log(data);
       const status = data.autorizacion.status === 'APROBADO';
       if (status && courierInfo.validCourier && check) {
         solicitarEnvio();
-        alert("Payment approved!\nRerouting to package tracker...");
-        navigate('/tracker');
       } else {
         if (!courierInfo.validCourier && check) {
           alert("Please verify the courier information.");
@@ -269,10 +291,16 @@ const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
     }
   }, [data, courierInfo, check]);
 
+  useEffect(() => {
+    if (orderID > 0) {
+      alert(`Payment approved for $${courierInfo.totalCost}!\nYour order number is: ${orderID}\nRerouting to package tracker...`);
+      navigate('/tracker');
+    }
+  }, [orderID]);
+
   const handleCheck = async (e) => {
     setCheck(true);
     e.preventDefault();
-
     if (!card) {
       alert("Please choose a payment method");
       setCheck(false);
@@ -299,7 +327,8 @@ const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
       formattedValue = value;
     }
 
-    setDate(formattedValue);
+    setFormattedDate(formattedValue);
+    setDate(value);
   };
 
   return (
@@ -406,7 +435,7 @@ const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
             <TextField
               label="Expiration Date"
               variant="outlined"
-              value={date}
+              value={formattedDate}
               required
               onChange={handleDateChange}
               placeholder="YYYY/MM"

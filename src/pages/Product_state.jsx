@@ -13,12 +13,13 @@ export default function ProductState() {
     const tag = text === 'entregada' ? 'tag' : 'tag_blue';
     const completionPercentage = (completedSteps / totalSteps) * 100; 
     const [selectedOption, setSelectedOption] = useState(null);
-    const userId = localStorage.getItem("userId");
+    const userId = localStorage.getItem("cid");
     const [data, setData] = useState([]);
     const [finalData, setFinalData] = useState('');
     const [couriers, setCouriers] = useState([]);
     const [error, setError] = useState(null);
     const navigate = useNavigate(); 
+    const tempStatus = `http://localhost:8000/status`;
     
     const handleChange = async (e) => {
         setSelectedOption(e);

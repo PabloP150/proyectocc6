@@ -43,7 +43,7 @@ connection.connect((err) => {
 // Ruta para obtener todos los productos
 app.get('/api/productos', (req, res) => {
   const query = 'SELECT * FROM producto';
-  
+
   connection.query(query, (err, results) => {
     if (err) {
       console.error('Error en la consulta SQL:', err);
@@ -73,6 +73,26 @@ app.post('/api/register', (req, res) => {
   });
 });
 
+// Ruta para insertar una nueva orden
+app.post('/api/ordenNueva', (req, res) => {
+  const {cid, coid, estado, precioTotal } = req.body; // Ensure these fields are being sent
+
+  if (!cid || !coid || !estado || !precioTotal) {
+    return res.status(400).json({ error: 'Faltan datos requeridos' });
+  }
+
+  const query = "INSERT INTO Orden (cid, coid, estado, precioTotal) VALUES (?, ?, ?, ?)";
+  const values = [cid, coid, estado, precioTotal];
+
+  connection.query(query, values, (err, result) => {
+    if (err) {
+      console.error('Error al insertar la orden:', err);
+      res.status(500).json({ error: 'Error al insertar la orden', details: err.message });
+      return;
+    }
+    res.status(201).json({ message: 'Orden insertada exitosamente', orderId: result.insertId });
+  });
+});
 
 // Ruta para obtener las ordenes
 app.post('/api/orden', (req, res) => {
@@ -80,45 +100,45 @@ app.post('/api/orden', (req, res) => {
 
   const query = "SELECT * FROM orden WHERE cid = ? AND estado = ?";
   connection.query(query, [userId, estado], (err, results) => {
-      if (err) {
-          console.error('Error en la consulta:', err);
-          res.status(500).send('Error interno del servidor');
-          return;
-      }
-      
-      if (results.length > 0) {
-          // Mapeamos los resultados para obtener tanto los IDs de las órdenes como los coid
-          const orderData = results.map(order => ({
-              oid: order.oid, // ID de la orden
-              coid: order.coid // ID del courier
-          }));
-          
-          res.status(200).json({
-              orderData: orderData // Enviamos un array de objetos con oid y coid
-          });
-      } else {
-          res.status(404).send('Usuario no encontrado');
-      }
+    if (err) {
+      console.error('Error en la consulta:', err);
+      res.status(500).send('Error interno del servidor');
+      return;
+    }
+
+    if (results.length > 0) {
+      // Mapeamos los resultados para obtener tanto los IDs de las órdenes como los coid
+      const orderData = results.map(order => ({
+        oid: order.oid, // ID de la orden
+        coid: order.coid // ID del courier
+      }));
+
+      res.status(200).json({
+        orderData: orderData // Enviamos un array de objetos con oid y coid
+      });
+    } else {
+      res.status(404).send('Usuario no encontrado');
+    }
   });
 });
 
 // Ruta para obtener los datos del courier
 app.post('/api/courier', (req, res) => {
-  const { coid } = req.body; 
+  const { coid } = req.body;
 
   const query = "SELECT * FROM courier WHERE coid = ?";
   connection.query(query, [coid], (err, results) => {
-      if (err) {
-          console.error('Error en la consulta:', err);
-          res.status(500).send('Error interno del servidor');
-          return;
-      }
+    if (err) {
+      console.error('Error en la consulta:', err);
+      res.status(500).send('Error interno del servidor');
+      return;
+    }
 
-      if (results.length > 0) {
-          res.status(200).json(results[0]);
-      } else {
-          res.status(404).send('No se encontró el courier');
-      }
+    if (results.length > 0) {
+      res.status(200).json(results[0]);
+    } else {
+      res.status(404).send('No se encontró el courier');
+    }
   });
 });
 
@@ -151,7 +171,7 @@ app.post('/api/login', (req, res) => {
 // Ruta para obtener todos los couriers
 app.get('/api/couriers', (req, res) => {
   const query = 'SELECT * FROM Courier';
-  
+
   connection.query(query, (err, results) => {
     if (err) {
       console.error('Error en la consulta SQL:', err);
@@ -165,7 +185,7 @@ app.get('/api/couriers', (req, res) => {
 // Ruta para obtener todas las tarjetas
 app.get('/api/tarjetas', (req, res) => {
   const query = 'SELECT * FROM Tarjeta';
-  
+
   connection.query(query, (err, results) => {
     if (err) {
       console.error('Error en la consulta SQL:', err);
@@ -175,7 +195,6 @@ app.get('/api/tarjetas', (req, res) => {
     res.json(results);
   });
 });
-
 
 // Iniciar el servidor
 app.listen(port, '0.0.0.0', () => {

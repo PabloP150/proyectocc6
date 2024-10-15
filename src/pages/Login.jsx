@@ -29,7 +29,7 @@ export default function Login() {
                 console.log(response);
                 if (response && response.data) {
                     // Almacenamiento de datos del usuario en localStorage
-                    localStorage.setItem('userId', response.data.id);
+                    localStorage.setItem('cid', response.data.id);
                     localStorage.setItem('username', response.data.usuario);
                     navigate('/'); // Navega al inicio después del login
                 } else {
@@ -90,10 +90,7 @@ export default function Login() {
                     >
                         Iniciar Sesión
                     </Button>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                        <MuiLink component={RouterLink} to="#" variant="body2">
-                            ¿Olvidaste tu contraseña?
-                        </MuiLink>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-around', mt: 2 }}>
                         <MuiLink component={RouterLink} to="/register" variant="body2">
                             {"¿No tienes una cuenta? Regístrate"}
                         </MuiLink>
