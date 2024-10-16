@@ -20,11 +20,13 @@ const CourierInfo = React.memo(({ setCourierInfo, courierDB }) => {
   const couriers = courierDB[0] ? [
     { value: 0, coid: courierDB[0].coid, name: courierDB[0].nombre, ip: courierDB[0].ip, path: courierDB[0].carpeta, ext: courierDB[0].extension },
     { value: 1, coid: courierDB[1].coid, name: courierDB[1].nombre, ip: courierDB[1].ip, path: courierDB[1].carpeta, ext: courierDB[1].extension },
-    { value: 2, coid: courierDB[2].coid, name: courierDB[2].nombre, ip: courierDB[2].ip, path: courierDB[2].carpeta, ext: courierDB[2].extension }
+    { value: 2, coid: courierDB[2].coid, name: courierDB[2].nombre, ip: courierDB[2].ip, path: courierDB[2].carpeta, ext: courierDB[2].extension },
+    { value: 3, coid: courierDB[3].coid, name: courierDB[3].nombre, ip: courierDB[3].ip, path: courierDB[3].carpeta, ext: courierDB[3].extension }
   ] : [
     { value: 0, name: 'loading...' },
     { value: 1, name: 'loading...' },
-    { value: 2, name: 'loading...' }
+    { value: 2, name: 'loading...' },
+    { value: 3, name: 'loading...' }
   ];
 
   const format = "json";
@@ -209,7 +211,12 @@ const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
   const [cvv, setCvv] = useState('');
   const [data, setData] = useState('');
   const [check, setCheck] = useState(false);
-  const [orderID, setOrderID] = useState(0);
+  const [orderID, setOrderID] = useState(() => {
+    // Retrieve orderID from local storage or set to a default value
+    const storedOrderID = localStorage.getItem('orderID');
+    return storedOrderID ? parseInt(storedOrderID, 10) : 10000; // Default to 10000 if not found
+  });
+  const [success, setSuccess] = useState(false);
   const cid = localStorage.getItem('cid');
   const navigate = useNavigate();
 
@@ -247,6 +254,7 @@ const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
     try {
       console.log("Solicitando envio a: ", envio);
       const response = await fetch(envio);
+      setSuccess(true);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -262,7 +270,10 @@ const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
       };
 
       const orderResponse = await axios.post('http://localhost:5000/api/ordenNueva', orderData);
-      setOrderID(orderResponse.data.orderId);
+      const newOrderID = orderResponse.data.orderId + 1; // Increment the order ID
+      setOrderID(newOrderID);
+      localStorage.setItem('orderID', newOrderID); // Store the new order ID in local storage
+      console.log("OrderID: ", newOrderID);
 
       console.log("Order Response:", orderResponse);
       if (orderResponse.status !== 201) {
@@ -276,7 +287,6 @@ const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
 
   useEffect(() => {
     if (data && data.autorizacion) {
-      console.log(data);
       const status = data.autorizacion.status === 'APROBADO';
       if (status && courierInfo.validCourier && check) {
         solicitarEnvio();
@@ -292,8 +302,9 @@ const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
   }, [data, courierInfo, check]);
 
   useEffect(() => {
-    if (orderID > 0) {
-      alert(`Payment approved for $${courierInfo.totalCost}!\nYour order number is: ${orderID}\nRerouting to package tracker...`);
+    if (orderID > 0 && success) {
+      alert(`Payment approved for $${courierInfo.totalCost}!\nYour order number is: ${orderID-1}\nRerouting to package tracker...`);
+      setSuccess(false);
       navigate('/tracker');
     }
   }, [orderID]);

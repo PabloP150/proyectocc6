@@ -1,3 +1,4 @@
+use proyectocc6;
 INSERT INTO producto (nombre, precio, existencia, categoria, descripcion, imagen)
 VALUES
 ('Intel Core i7', 399.99, 100, 'cpus', 'Intel® Core™ i7-14700K New Gaming Desktop Processor 20 cores (8 P-cores + 12 E-cores) with Integrated Graphics', '/images/i7.jpg'),
@@ -22,14 +23,21 @@ VALUES
 ('Kingston SSD', 130.00, 100, 'storage', 'Kingston SSD - HDD interno', '/images/ssd.jpg');
 
 INSERT INTO Courier VALUES 
-	('100000000000000', 'UGExpress', '192.168.0.103', '', '.php'),
-    ('100000000000001', 'Entregas McQueen', '192.168.0.115', '/crud-actividad/backend', '.php'),
-    ('100000000000002', 'ALC Express', '192.168.0.100', '', '.php');
+	('100000000000000', 'UGExpress', '192.168.0.104', '', '.php'),
+    ('100000000000001', 'Entregas McQueen', '192.168.0.108', '/crud-actividad/backend', '.php'),
+    ('100000000000002', 'ALC Express', '192.168.0.102', '/PROYECTO_CCVI', '.php'),
+    ('100000000000003', 'Speedy Box', '192.168.0.109:8000', '', '');
 
 INSERT INTO Tarjeta VALUES 
-	('000000000000000', 'Visa', '192.168.0.113', '/CCVI-Proyecto1', '.php'),
-    ('000000000000001', 'American Express', '192.168.0.105:3000', '/ProyectoCC6/tarjeta_de_credito', '.js'),
-    ('000000000000002', 'Mastercard', '192.168.0.109:3001', '', '.js'),
-    ('000000000000003', 'Credomatic', '192.168.0.116', '/TarjetaCredito', '.php');
+	('000000000000000', 'Visa', '192.168.0.103', '/CCVI-Proyecto1', '.php'),
+    ('000000000000001', 'American Express', '192.168.0.100:3000', '/api/autorizacionTarjeta', '.js'),
+    ('000000000000002', 'Mastercard', '192.168.0.101:3001', '/autorizacion', '.js'),
+    ('000000000000003', 'Credomatic', '192.168.0.106', '/TarjetaCredito', '.php');
+  
+#UPDATE courier SET ip = '192.168.0.104' where coid = '100000000000003';
 
-select * from producto;
+#UPDATE tarjeta SET ip = '172.20.10.3' where tid = '000000000000000';
+
+#select * from orden;
+
+SELECT * FROM courier WHERE coid = 100000000000000

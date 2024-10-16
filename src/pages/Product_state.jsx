@@ -7,30 +7,30 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 export default function ProductState() {
-    const totalSteps = 5; 
-    const [completedSteps, setCompletedSteps] = useState(1); 
+    const totalSteps = 5;
+    const [completedSteps, setCompletedSteps] = useState(1);
     const [text, setText] = useState('entregada');
     const tag = text === 'entregada' ? 'tag' : 'tag_blue';
-    const completionPercentage = (completedSteps / totalSteps) * 100; 
+    const completionPercentage = (completedSteps / totalSteps) * 100;
     const [selectedOption, setSelectedOption] = useState(null);
     const userId = localStorage.getItem("cid");
     const [data, setData] = useState([]);
     const [finalData, setFinalData] = useState('');
     const [couriers, setCouriers] = useState([]);
     const [error, setError] = useState(null);
-    const navigate = useNavigate(); 
-    const tempStatus = `http://localhost:8000/status`;
-    
+    const navigate = useNavigate();
+
     const handleChange = async (e) => {
         setSelectedOption(e);
         await fetchData();
     };
-    
+
     const fetchCourierData = async (orders) => {
         try {
             const couriersPromises = orders.map(async (order) => {
+                console.log("TEST: ", order.coid);
                 const courierResponse = await axios.post('http://localhost:5000/api/courier', { coid: order.coid });
-                
+
                 return {
                     orderId: order.oid,
                     courierInfo: courierResponse.data
@@ -46,14 +46,17 @@ export default function ProductState() {
 
     const fetchData = async () => {
         try {
-          const response = await fetch(getCourierStatusUrl());
-          if (!response.ok) {
-            throw new Error('Network response was not ok');
-          }
-          const jsonData = await response.json();
-          setFinalData(jsonData);
+            const statusURL = getCourierStatusUrl();
+            console.log(statusURL);
+            const response = await fetch(statusURL);
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const jsonData = await response.json();
+            setFinalData(jsonData);
         } catch (error) {
-          console.error('Error fetching data:', error);
+            console.error('Error fetching data:', error);
         }
     };
 
@@ -63,13 +66,13 @@ export default function ProductState() {
             setCompletedSteps(status);
         }
     }, [finalData]);
-    
+
     useEffect(() => {
         const fetchOrders = async () => {
             try {
                 const formData = {
-                    userId: userId, 
-                    estado: 'f' 
+                    userId: userId,
+                    estado: 'f'
                 };
 
                 const response = await axios.post('http://localhost:5000/api/orden', formData);
@@ -78,7 +81,7 @@ export default function ProductState() {
                     const formattedData = response.data.orderData.map(orderId => {
                         return {
                             value: orderId.oid,
-                            label: orderId.oid 
+                            label: orderId.oid
                         };
                     });
                     setData(formattedData);
@@ -93,27 +96,28 @@ export default function ProductState() {
                 setError(`No se encontraron órdenes para este usuario`);
             }
         };
-    
+
         fetchOrders();
     }, [userId]);
-    
-    const selectedCourierInfo = selectedOption 
-        ? couriers.find(c => c.orderId === selectedOption.label) 
+
+    const selectedCourierInfo = selectedOption
+        ? couriers.find(c => c.orderId === selectedOption.label)
         : null;
 
     // Construir la URL de IP según el courier seleccionado
     const getCourierStatusUrl = () => {
         if (selectedCourierInfo) {
             const orderId = selectedCourierInfo.orderId;
-            const courierInfo = selectedCourierInfo.courierInfo; 
-            const base = courierInfo.ip; 
-            const store = 'CPN%20Electronics'; 
-            const format = 'json'; 
-            
+            const courierInfo = selectedCourierInfo.courierInfo;
+            const base = courierInfo.ip;
+            const store = 'CPN%20Electronics';
+            const ext = courierInfo.extension;
+            const format = 'json';
+
             // Añadir la carpeta si existe
             const folder = courierInfo.carpeta ? `/${courierInfo.carpeta}` : '';
-            
-            return `http://${base}${folder}/status?orden=${orderId}&tienda=${store}&formato=${format}`;
+
+            return `http://${base}${folder}/status${ext}?orden=${orderId}&tienda=${store}&formato=${format}`;
         }
         return '';
     };
@@ -130,9 +134,9 @@ export default function ProductState() {
                         <div className="select-container">
                             <Select
                                 placeholder="Select Option"
-                                value={selectedOption} 
-                                options={data} 
-                                onChange={handleChange} 
+                                value={selectedOption}
+                                options={data}
+                                onChange={handleChange}
                             />
                         </div>
                         <div className="order-progress">
