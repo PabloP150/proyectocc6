@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Box, Typography } from '@mui/material';
-import { Header, Navbar, ProductGrid, Footer } from '../Componentes';
+import { Header, Navbar, ProductGridAll, Footer } from '../Componentes';
 
 export default function Category() {
   // Obtiene el parámetro 'categoria' de la URL
@@ -48,7 +48,7 @@ export default function Category() {
       <Box sx={{ padding: 3 }}>
         {filteredProducts.length > 0 ? (
           // Si hay productos en la categoría, muestra el grid de productos
-          <ProductGrid categoria={categoria} products={filteredProducts} />
+          <ProductGridAll categoria={categoria} products={filteredProducts} />
         ) : (
           // Si no hay productos, muestra un mensaje
           <Typography>No se encontraron productos en esta categoría.</Typography>

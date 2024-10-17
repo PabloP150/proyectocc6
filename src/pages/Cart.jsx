@@ -6,7 +6,7 @@ import { useCart } from '../CartContext';
 
 export default function Cart() {
   // Obtiene las funciones y el estado del carrito del contexto
-  const { cart, removeFromCart, counter } = useCart();
+  const { cart, removeFromCart, counter, addToCart } = useCart();
 
   // Estado para almacenar el total del carrito
   const [total, setTotal] = useState(0);
@@ -47,10 +47,13 @@ export default function Cart() {
                 ${item.precio} x {item.quantity}
               </Typography>
             </Grid>
-            {/* Botón para eliminar el producto */}
+            {/* Botones para eliminar y agregar productos */}
             <Grid item xs={2}>
               <Button onClick={() => removeFromCart(index)}>
                 <Typography variant="body2" color="error">Eliminar</Typography>
+              </Button>
+              <Button onClick={() => addToCart(item)}>
+                <Typography variant="body2" color="primary">Agregar</Typography>
               </Button>
             </Grid>
           </Grid>

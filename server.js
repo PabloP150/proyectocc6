@@ -42,7 +42,7 @@ connection.connect((err) => {
 
 // Ruta para obtener todos los productos
 app.get('/api/productos', (req, res) => {
-  const query = 'SELECT * FROM producto';
+  const query = 'SELECT * FROM Producto';
 
   connection.query(query, (err, results) => {
     if (err) {
@@ -193,6 +193,74 @@ app.get('/api/tarjetas', (req, res) => {
       return;
     }
     res.json(results);
+  });
+});
+
+// Ruta para agregar un nuevo producto
+app.post('/api/addProduct', (req, res) => {
+    const { nombre, precio, existencia, categoria, descripcion, imagen } = req.body;
+    const values = [nombre, precio, existencia, categoria, descripcion, imagen];
+
+    connection.query("INSERT INTO Producto (nombre, precio, existencia, categoria, descripcion, imagen) VALUES (?, ?, ?, ?, ?, ?)", values, (err, result) => {
+        if (err) {
+            console.error('Error al agregar el producto:', err);
+            return res.status(500).json({ message: 'Error al agregar el producto' }); // Cambiado a JSON
+        }
+        res.status(201).json({ message: 'Producto agregado exitosamente', pid: result.insertId }); // Cambiado a JSON
+    });
+});
+
+
+// Ruta para eliminar un producto por nombre
+app.delete('/api/deleteProduct', (req, res) => {
+  const { nombre } = req.body; // Obtener el nombre del producto del cuerpo de la solicitud
+
+  // Primero, buscamos el producto por nombre
+  connection.query("SELECT pid FROM Producto WHERE nombre = ?", [nombre], (err, results) => {
+    if (err) {
+      console.error('Error al buscar el producto:', err);
+      return res.status(500).json({ error: 'Error al buscar el producto', details: err.message });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).send('Producto no encontrado');
+    }
+
+    const pid = results[0].pid; // Obtenemos el pid del producto encontrado
+
+    // Ahora eliminamos el producto usando el pid
+    connection.query("DELETE FROM Producto WHERE pid = ?", [pid], (err, result) => {
+      if (err) {
+        console.error('Error al eliminar el producto:', err);
+        return res.status(500).json({ error: 'Error al eliminar el producto', details: err.message });
+      }
+      if (result.affectedRows > 0) {
+        res.status(200).send('Producto eliminado exitosamente');
+      } else {
+        res.status(404).send('Producto no encontrado');
+      }
+    });
+  });
+});
+
+
+// Ruta para actualizar un producto
+app.put('/api/updateProduct', (req, res) => {
+  const { pid, nombre, precio, existencia, descripcion } = req.body;
+
+  const updateQuery = "UPDATE Producto SET nombre = ?, precio = ?, existencia = ?, descripcion = ? WHERE pid = ?";
+  const values = [nombre, precio, existencia, descripcion, pid];
+
+  connection.query(updateQuery, values, (err, result) => {
+    if (err) {
+      console.error('Error al editar el producto:', err);
+      return res.status(500).json({ error: 'Error al editar el producto', details: err.message });
+    }
+    if (result.affectedRows > 0) {
+      res.status(200).send('Producto editado exitosamente');
+    } else {
+      res.status(404).send('Producto no encontrado');
+    }
   });
 });
 

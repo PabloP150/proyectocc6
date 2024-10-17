@@ -9,6 +9,9 @@ import Login from './pages/Login';
 import Checkout from './pages/Checkout';
 import Tracker from './pages/Product_state.jsx';
 import Register from './pages/Register'; // Añade esta línea
+import AddProduct from './pages/AddProduct'; // Importa el nuevo componente
+import DeleteProduct from './pages/DeleteProduct'; // Importa el nuevo componente
+import EditProduct from './pages/EditProduct.jsx';
 
 export default function App() {
   return (
@@ -43,6 +46,15 @@ export default function App() {
 
           {/* Ruta para la página de Tracker */}
           <Route path="/tracker" element={<Tracker />} />
+
+          {/* Ruta para agregar un nuevo producto */}
+          <Route path="/add-product" element={<AddProduct />} />
+
+          {/* Ruta para eliminar un producto */}
+          <Route path="/delete-product" element={<DeleteProduct />} />
+
+           {/* Ruta para editar un producto */}
+           <Route path="/edit-product" element={<EditProduct />} />
         </Routes>
       </BrowserRouter>
     </CartProvider>

@@ -90,6 +90,21 @@ export function Navbar() {
     setAnchorEl(null);
   };
 
+  const handleAddProduct = () => {
+    navigate("/add-product");
+    setAnchorEl(null);
+  };
+
+  const handleDeleteProduct = () => {
+    navigate("/delete-product");
+    setAnchorEl(null);
+  };
+
+  const handleEditProduct = () => {
+    navigate("/edit-product");
+    setAnchorEl(null);
+  };
+
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -167,6 +182,9 @@ export function Navbar() {
               onClose={handleClose}
             >
               <MenuItem onClick={handleTracker}>Track Package</MenuItem>
+              <MenuItem onClick={handleAddProduct}>Add Product</MenuItem>
+              <MenuItem onClick={handleDeleteProduct}>Delete Product</MenuItem>
+              <MenuItem onClick={handleEditProduct}>Edit Product</MenuItem>
               <MenuItem onClick={handleLogout}>Sign Out</MenuItem>
             </Menu>
           </>
@@ -233,6 +251,80 @@ export function ProductGrid({ categoria, products }) {
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
+              }}
+            >
+              <Link
+                to={`/product/${producto.categoria}/${producto.pid}`}
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
+                }}
+              >
+                <Box
+                  sx={{
+                    height: 200,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    mb: 2,
+                  }}
+                >
+                  <img
+                    src={`http://localhost:3000${producto.imagen}`}
+                    alt={producto.nombre}
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                </Box>
+                <Typography
+                  variant="body2"
+                  sx={{ flexGrow: 1, textAlign: "center" }}
+                >
+                  {producto.descripcion}
+                </Typography>
+              </Link>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
+  );
+}
+
+// Nueva función para mostrar todos los productos de una categoría
+export function ProductGridAll({ categoria, products }) {
+  return (
+    <Box sx={{ flexGrow: 1, mb: 4 }}>
+      <Typography
+        variant="h4"
+        gutterBottom
+        sx={{
+          textTransform: "uppercase",
+          mb: 1,
+          fontWeight: "bold",
+          borderBottom: "1px solid #ccc",
+          paddingTop: 4,
+        }}
+      >
+        {categoria}
+      </Typography>
+      <Grid container spacing={6}>
+        {products.map((producto) => (
+          <Grid item xs={8} sm={3} md={3} key={producto.pid}>
+            <Paper
+              elevation={2}
+              sx={{
+                p: 2,
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                marginBottom: 1,
               }}
             >
               <Link
