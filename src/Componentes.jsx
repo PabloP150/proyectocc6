@@ -69,7 +69,7 @@ export function Navbar() {
   // Hook para la navegación programática
   const navigate = useNavigate();
   // Obtiene el nombre de usuario del almacenamiento local
-  const username = localStorage.getItem("username");
+  const username = sessionStorage.getItem("username");
 
   // Estado para el menú desplegable
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -78,8 +78,8 @@ export function Navbar() {
   // Función para manejar el cierre de sesión
   const handleLogout = () => {
     // Limpia el almacenamiento local
-    localStorage.removeItem("username");
-    localStorage.removeItem("userId");
+    sessionStorage.removeItem("username");
+    sessionStorage.removeItem("userId");
     // Redirige al usuario a la página principal
     navigate("/"); // Cambiado de '/login' a '/'
     setAnchorEl(null);
@@ -190,7 +190,7 @@ export function Navbar() {
           </>
         ) : (
           <Button color="inherit" component={Link} to="/login">
-            Iniciar Sesión
+            Log In
           </Button>
         )}
         {/* Icono del carrito de compras con contador */}

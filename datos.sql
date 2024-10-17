@@ -33,11 +33,13 @@ INSERT INTO Tarjeta VALUES
     ('000000000000001', 'American Express', '192.168.0.100:3000', '/api/autorizacionTarjeta', '.js'),
     ('000000000000002', 'Mastercard', '192.168.0.101:3001', '/autorizacion', '.js'),
     ('000000000000003', 'Credomatic', '192.168.0.106', '/TarjetaCredito', '.php');
+
+INSERT INTO Cliente VALUES (NULL, 'admin', 'admin', 'admin');
+
+INSERT INTO Orden VALUES (NULL, 1, '100000000000000', 'c', '0');
   
 #UPDATE courier SET ip = '192.168.0.104' where coid = '100000000000003';
 
 #UPDATE tarjeta SET ip = '172.20.10.3' where tid = '000000000000000';
 
 #select * from orden;
-
-SELECT * FROM courier WHERE coid = 100000000000000

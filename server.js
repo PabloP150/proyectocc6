@@ -54,7 +54,6 @@ app.get('/api/productos', (req, res) => {
   });
 });
 
-
 // Ruta para registrar un nuevo usuario
 app.post('/api/register', (req, res) => {
   const { nombre, usuario, contraseña } = req.body;
@@ -62,7 +61,7 @@ app.post('/api/register', (req, res) => {
   connection.query("INSERT INTO cliente (nombre, usuario, contraseña) VALUES (?, ?, ?)", values, (err, result) => {
     if (err) {
       console.error('Error al registrar:', err);
-      res.status(500).send(err.message);
+      res.status(500).send("Username already taken!");
     } else {
       if (result.affectedRows > 0) {
         res.status(201).send("Usuario registrado exitosamente");
@@ -163,7 +162,7 @@ app.post('/api/login', (req, res) => {
         nombre: results[0].nombre
       });
     } else {
-      res.status(404).send('Usuario no encontrado');
+      res.status(404).send('User not found');
     }
   });
 });
@@ -261,6 +260,19 @@ app.put('/api/updateProduct', (req, res) => {
     } else {
       res.status(404).send('Producto no encontrado');
     }
+  });
+});
+
+app.get('/api/orderID', (req, res) => {
+  const query = 'SELECT MAX(oid) AS oid FROM orden;';
+
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error('Error en la consulta SQL:', err);
+      res.status(500).json({ error: 'Error al obtener el orderID', details: err.message });
+      return;
+    }
+    res.json(results);
   });
 });
 

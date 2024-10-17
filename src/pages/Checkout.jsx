@@ -3,6 +3,7 @@ import { Header, Navbar, Footer } from "../Componentes";
 import { Box, Typography, Button, Card, CardContent, IconButton, TextField, Radio, RadioGroup, FormControlLabel } from '@mui/material';
 import { CreditCard } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useCart } from "../CartContext";
 import axios from 'axios';
 
 const CourierInfo = React.memo(({ setCourierInfo, courierDB }) => {
@@ -201,7 +202,7 @@ const CourierInfo = React.memo(({ setCourierInfo, courierDB }) => {
   );
 });
 
-const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
+const PaymentInfo = React.memo(({ courierInfo, cardDB, oid }) => {
 
   const [card, setCard] = useState({});
   const [cardName, setCardName] = useState("");
@@ -211,14 +212,10 @@ const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
   const [cvv, setCvv] = useState('');
   const [data, setData] = useState('');
   const [check, setCheck] = useState(false);
-  const [orderID, setOrderID] = useState(() => {
-    // Retrieve orderID from local storage or set to a default value
-    const storedOrderID = localStorage.getItem('orderID');
-    return storedOrderID ? parseInt(storedOrderID, 10) : 10000; // Default to 10000 if not found
-  });
   const [success, setSuccess] = useState(false);
-  const cid = localStorage.getItem('cid');
+  const cid = sessionStorage.getItem('cid');
   const navigate = useNavigate();
+  const { clearCart } = useCart();
 
   const cards = cardDB[0] ? [
     { value: 0, name: cardDB[0].nombre, ip: cardDB[0].ip, path: cardDB[0].carpeta, ext: cardDB[0].extension, image: "/images/visa.png" },
@@ -233,7 +230,7 @@ const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
   const autorizacion = `http://${card.ip}${card.path}/autorizacion${card.ext}?tarjeta=${cardNum}&nombre=${cardName}&fecha_venc=${date}&num_seguridad=${cvv}&monto=${courierInfo.totalCost}&tienda=CPN%20Electronics&formato=${format}`;
   const tempAutorizacion = `http://localhost:8000/authorizacion`;
 
-  const envio = `http://${courier.ip}${courier.path}/envio${courier.ext}?orden=${orderID}&destinatario=${cardName}&destino=${courierInfo.postalCode}&direccion=${courierInfo.address}&tienda=CPN%20Electronics&formato=${format}`;
+  const envio = `http://${courier.ip}${courier.path}/envio${courier.ext}?orden=${oid}&destinatario=${cardName}&destino=${courierInfo.postalCode}&direccion=${courierInfo.address}&tienda=CPN%20Electronics&formato=${format}`;
   const tempEnvio = `http://localhost:8000/envio`;
 
   const solicitarAutorizacion = async () => {
@@ -270,12 +267,7 @@ const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
       };
 
       const orderResponse = await axios.post('http://localhost:5000/api/ordenNueva', orderData);
-      const newOrderID = orderResponse.data.orderId + 1; // Increment the order ID
-      setOrderID(newOrderID);
-      localStorage.setItem('orderID', newOrderID); // Store the new order ID in local storage
-      console.log("OrderID: ", newOrderID);
 
-      console.log("Order Response:", orderResponse);
       if (orderResponse.status !== 201) {
         console.error('Error inserting order:', orderResponse.data);
         throw new Error('Error inserting order');
@@ -290,6 +282,7 @@ const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
       const status = data.autorizacion.status === 'APROBADO';
       if (status && courierInfo.validCourier && check) {
         solicitarEnvio();
+        clearCart();
       } else {
         if (!courierInfo.validCourier && check) {
           alert("Please verify the courier information.");
@@ -302,12 +295,12 @@ const PaymentInfo = React.memo(({ courierInfo, cardDB }) => {
   }, [data, courierInfo, check]);
 
   useEffect(() => {
-    if (orderID > 0 && success) {
-      alert(`Payment approved for $${courierInfo.totalCost}!\nYour order number is: ${orderID-1}\nRerouting to package tracker...`);
+    if (oid > 0 && success) {
+      alert(`Payment approved for $${courierInfo.totalCost}!\nYour order number is: ${oid}\nRerouting to package tracker...`);
       setSuccess(false);
       navigate('/tracker');
     }
-  }, [orderID]);
+  }, [success]);
 
   const handleCheck = async (e) => {
     setCheck(true);
@@ -487,21 +480,33 @@ export default function Checkout() {
     address: '',
     totalCost: 0,
   });
-  const [courierDB, setCourierDB] = useState([]); // Change to an array
-  const [cardDB, setCardDB] = useState([]); // Change to an array
+  const [courierDB, setCourierDB] = useState([]);
+  const [cardDB, setCardDB] = useState([]);
+  const [oid, setOid] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const memoizedSetCourierInfo = useCallback((courier, validCourier, postalCode, address, totalCost) => {
     setCourierInfo({ courier, validCourier, postalCode, address, totalCost });
   }, []);
 
-  // Fetch couriers and tarjetas on component mount
+  const fetchOrderID = async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/api/orderID');
+      setOid(response.data[0].oid + 1);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const fetchCouriers = async () => {
       try {
         const response = await fetch('http://localhost:5000/api/couriers');
         const data = await response.json();
         if (Array.isArray(data)) {
-          setCourierDB(data); // Store all couriers
+          setCourierDB(data);
         }
       } catch (error) {
         console.error('Error fetching couriers:', error);
@@ -513,16 +518,22 @@ export default function Checkout() {
         const response = await fetch('http://localhost:5000/api/tarjetas');
         const data = await response.json();
         if (Array.isArray(data)) {
-          setCardDB(data); // Store all tarjetas
+          setCardDB(data);
         }
       } catch (error) {
         console.error('Error fetching tarjetas:', error);
       }
     };
 
+    fetchOrderID();
     fetchCouriers();
     fetchTarjetas();
   }, []);
+
+  //Esperar a cargar datos de db
+  if (loading) {
+    return <div>Loading...</div>; 
+  }
 
   return (
     <Box>
@@ -540,7 +551,7 @@ export default function Checkout() {
         }}
       >
         <CourierInfo setCourierInfo={memoizedSetCourierInfo} courierDB={courierDB} />
-        <PaymentInfo courierInfo={courierInfo} cardDB={cardDB} />
+        <PaymentInfo courierInfo={courierInfo} cardDB={cardDB} oid={oid}/>
       </Box>
       <Footer />
     </Box>

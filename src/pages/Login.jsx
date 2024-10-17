@@ -29,8 +29,8 @@ export default function Login() {
                 console.log(response);
                 if (response && response.data) {
                     // Almacenamiento de datos del usuario en localStorage
-                    localStorage.setItem('cid', response.data.id);
-                    localStorage.setItem('username', response.data.usuario);
+                    sessionStorage.setItem('cid', response.data.id);
+                    sessionStorage.setItem('username', response.data.usuario);
                     navigate('/'); // Navega al inicio después del login
                 } else {
                     throw new Error('Respuesta vacía del servidor');
@@ -55,7 +55,7 @@ export default function Login() {
                     <LockOutlinedIcon />
                 </Avatar>
                 <Typography component="h1" variant="h5">
-                    Iniciar Sesión
+                    Log In
                 </Typography>
                 <Box component="form" sx={{ mt: 1 }} onSubmit={onSubmit}>
                     <TextField
@@ -63,7 +63,7 @@ export default function Login() {
                         required
                         fullWidth
                         id="usuario"
-                        label="Nombre de Usuario"
+                        label="Username"
                         name="usuario"
                         autoComplete="username"
                         autoFocus
@@ -75,7 +75,7 @@ export default function Login() {
                         required
                         fullWidth
                         name="contraseña"
-                        label="Contraseña"
+                        label="Password"
                         type="password"
                         id="contraseña"
                         autoComplete="current-password"
@@ -88,11 +88,11 @@ export default function Login() {
                         variant="contained"
                         sx={{ mt: 3, mb: 2 }}
                     >
-                        Iniciar Sesión
+                        Log in
                     </Button>
                     <Box sx={{ display: 'flex', justifyContent: 'space-around', mt: 2 }}>
                         <MuiLink component={RouterLink} to="/register" variant="body2">
-                            {"¿No tienes una cuenta? Regístrate"}
+                            {"Don't have an account? Sign Up"}
                         </MuiLink>
                     </Box>
                 </Box>

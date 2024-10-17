@@ -29,7 +29,7 @@ export default function Register() {
     setError(''); // Limpia errores anteriores
     axios.post('http://localhost:5000/api/register', formData)
       .then(({data}) => {
-        alert('Registro exitoso. Por favor, inicia sesión.');
+        alert('Register successful! Please log in');
         navigate('/login'); // Redirige al usuario a la página de inicio de sesión
       })
       .catch((error) => {
@@ -47,11 +47,11 @@ export default function Register() {
   return (
     <Container maxWidth="xs">
       <Paper elevation={3} style={{ padding: '20px', marginTop: '50px' }}>
-        <Typography variant="h5" align="center">Registro</Typography>
+        <Typography variant="h5" align="center">Register</Typography>
         <Box component="form" onSubmit={onSubmit} sx={{ mt: 1 }}>
           <TextField
             fullWidth
-            label="Nombre Completo"
+            label="Full Name"
             value={formData.nombre}
             onChange={inputChange}
             name="nombre"
@@ -59,7 +59,7 @@ export default function Register() {
           />
           <TextField
             fullWidth
-            label="Nombre de Usuario"
+            label="Username"
             value={formData.usuario}
             onChange={inputChange}
             name="usuario"
@@ -67,7 +67,7 @@ export default function Register() {
           />
           <TextField
             fullWidth
-            label="Contraseña"
+            label="Password"
             type="password"
             value={formData.contraseña}
             onChange={inputChange}
@@ -80,11 +80,11 @@ export default function Register() {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
           >
-            Registrarse
+            Register
           </Button>
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
             <Link component={RouterLink} to="/login" variant="body2">
-              ¿Ya tienes una cuenta? Inicia sesión
+              Already have an account? Log in
             </Link>
           </Box>
         </Box>

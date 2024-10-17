@@ -35,9 +35,14 @@ export function CartProvider({ children }) {
         setCounter(counter - 1);
     };
 
+    const clearCart = () => {
+        setCart([]);
+        setCounter(0);
+    }
+
     // Proporciona el contexto del carrito a los componentes hijos
     return (
-        <CartContext.Provider value={{ cart, counter, addToCart, removeFromCart }}>
+        <CartContext.Provider value={{ cart, counter, addToCart, removeFromCart, clearCart }}>
             {children}
         </CartContext.Provider>
     );
